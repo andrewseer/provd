@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Provd — is it real?</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bellefair&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0A0A0F;
+    color: #E8E0D5;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+
+  .logo {
+    font-family: 'Bellefair', serif;
+    font-size: 48px;
+    color: #00E5CC;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .tagline {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #4A4A6A;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+
+  .card {
+    background: #0F0F1A;
+    border: 1px solid #1E1E32;
+    border-radius: 2px;
+    padding: 32px;
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 24px;
+  }
+
+  .card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #4A4A6A;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  textarea {
+    width: 100%;
+    background: #13131F;
+    border: 1px solid #1A1A2E;
+    border-radius: 1px;
+    color: #E8E0D5;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.6;
+    padding: 16px;
+    resize: vertical;
+    min-height: 160px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  textarea:focus {
+    border-color: #00E5CC40;
+  }
+
+  textarea::placeholder {
+    color: #2A2A4A;
+  }
+
+  button {
+    width: 100%;
+    background: #00E5CC;
+    color: #0A0A0F;
+    border: none;
+    border-radius: 1px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 16px;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: opacity 0.2s;
+  }
+
+  button:hover { opacity: 0.85; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .result-card {
+    background: #0F0F1A;
+    border: 1px solid #1E1E32;
+    border-radius: 2px;
+    padding: 32px;
+    width: 100%;
+    max-width: 600px;
+    display: none;
+  }
+
+  .result-card.visible { display: block; }
+
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 28px;
+  }
+
+  .score-circle {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+  }
+
+  .score-circle svg {
+    transform: rotate(-90deg);
+  }
+
+  .score-inner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-number {
+    font-family: 'Bellefair', serif;
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .score-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    color: #6B6B8A;
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+
+  .verdict {
+    flex: 1;
+  }
+
+  .verdict-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 8px;
+  }
+
+  .verdict-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: #C4A882;
+    border: 1px solid #C4A88240;
+    padding: 3px 8px;
+    border-radius: 1px;
+    letter-spacing: 0.06em;
+  }
+
+  .signals-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #4A4A6A;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-top: 20px;
+    border-top: 1px solid #1A1A2E;
+  }
+
+  .signal {
+    margin-bottom: 14px;
+  }
+
+  .signal-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .signal-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #6B6B8A;
+  }
+
+  .signal-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #4A4A6A;
+  }
+
+  .signal-bar-bg {
+    height: 2px;
+    background: #1A1A2E;
+    border-radius: 1px;
+    overflow: hidden;
+  }
+
+  .signal-bar-fill {
+    height: 100%;
+    border-radius: 1px;
+    transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .narrative {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #1A1A2E;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: #6B6B8A;
+    line-height: 1.7;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 32px;
+    display: none;
+  }
+
+  .loading.visible { display: block; }
+
+  .loading-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #4A4A6A;
+    letter-spacing: 0.1em;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  .top-line {
+    width: 100%;
+    max-width: 600px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #00E5CC40, #4F46E540, transparent);
+    margin-bottom: 48px;
+  }
+
+  .footer {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: #2A2A4A;
+    letter-spacing: 0.1em;
+    margin-top: 48px;
+  }
+</style>
+</head>
+<body>
+
+<div class="logo">provd</div>
+<p class="tagline">verification layer for the internet</p>
+<div class="top-line"></div>
+
+<div class="card">
+  <div class="card-label">paste content to verify</div>
+  <textarea id="inputText" placeholder="paste a post, caption, article, or any text you want to verify..."></textarea>
+  <button id="scanBtn" onclick="runScan()">scan content</button>
+</div>
+
+<div class="loading" id="loading">
+  <p class="loading-text">analyzing content...</p>
+</div>
+
+<div class="result-card" id="resultCard">
+  <div class="score-row">
+    <div class="score-circle">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="44" fill="none" stroke="#1A1A2E" stroke-width="3"/>
+        <circle id="scoreArc" cx="50" cy="50" r="44" fill="none" stroke="#00E5CC" stroke-width="3"
+          stroke-dasharray="0 276.46" stroke-linecap="round"/>
+      </svg>
+      <div class="score-inner">
+        <span class="score-number" id="scoreNumber">0</span>
+        <span class="score-label" id="scoreLabel">human score</span>
+      </div>
+    </div>
+    <div class="verdict">
+      <div class="verdict-title" id="verdictTitle">—</div>
+      <div class="verdict-tags" id="verdictTags"></div>
+    </div>
+  </div>
+
+  <div class="signals-title">signal breakdown</div>
+  <div id="signals"></div>
+
+  <div class="narrative" id="narrative"></div>
+</div>
+
+<div class="footer">provd · built on reality network</div>
+
+<script>
+const ANTHROPIC_KEY = const ANTHROPIC_KEY = 'YOUR_ANTHROPIC_KEY_HERE';
+
+async function runScan() {
+  const text = document.getElementById('inputText').value.trim();
+  if (!text || text.length < 20) {
+    alert('please paste at least a sentence or two to analyze');
+    return;
+  }
+
+  document.getElementById('scanBtn').disabled = true;
+  document.getElementById('loading').classList.add('visible');
+  document.getElementById('resultCard').classList.remove('visible');
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `You are a content authenticity analyzer. Analyze the following text and determine how likely it is to be human-written vs AI-generated.
+
+Return ONLY a JSON object with this exact structure, no other text:
+{
+  "humanScore": <number 0-100, where 100 is definitely human>,
+  "signals": [
+    {"name": "sentence entropy", "value": <0-100>, "flagged": <true if suspicious>},
+    {"name": "hedging language", "value": <0-100>, "flagged": <true if suspicious>},
+    {"name": "vocabulary distribution", "value": <0-100>, "flagged": <true if suspicious>},
+    {"name": "structural variance", "value": <0-100>, "flagged": <true if suspicious>},
+    {"name": "semantic coherence", "value": <0-100>, "flagged": <true if suspicious>}
+  ],
+  "tags": [<2-3 short signal labels like "hedging language" or "low entropy">, ...],
+  "narrative": "<2 sentences explaining the verdict in plain English>"
+}
+
+Text to analyze:
+${text}`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const raw = data.content[0].text;
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+    displayResult(result);
+
+  } catch (err) {
+    alert('something went wrong — check your API key is correct');
+    console.error(err);
+  } finally {
+    document.getElementById('scanBtn').disabled = false;
+    document.getElementById('loading').classList.remove('visible');
+  }
+}
+
+function displayResult(result) {
+  const score = result.humanScore;
+  const circ = 2 * Math.PI * 44;
+  const fill = (score / 100) * circ;
+  const color = score >= 70 ? '#00E5CC' : score >= 40 ? '#C4A882' : '#7B5EA7';
+
+  const arc = document.getElementById('scoreArc');
+  arc.setAttribute('stroke', color);
+  setTimeout(() => {
+    arc.setAttribute('stroke-dasharray', `${fill} ${circ - fill}`);
+  }, 100);
+
+  let display = 0;
+  const target = score;
+  const timer = setInterval(() => {
+    display = Math.min(display + 2, target);
+    document.getElementById('scoreNumber').textContent = display;
+    if (display >= target) clearInterval(timer);
+  }, 20);
+
+  document.getElementById('scoreNumber').style.color = color;
+
+  const verdictText = score >= 70 ? 'likely human written' : score >= 40 ? 'origin unclear' : 'likely AI generated';
+  document.getElementById('verdictTitle').textContent = verdictText;
+
+  const tagsEl = document.getElementById('verdictTags');
+  tagsEl.innerHTML = '';
+  (result.tags || []).forEach(tag => {
+    const span = document.createElement('span');
+    span.className = 'tag';
+    span.textContent = tag;
+    tagsEl.appendChild(span);
+  });
+
+  const signalsEl = document.getElementById('signals');
+  signalsEl.innerHTML = '';
+  (result.signals || []).forEach(sig => {
+    const barColor = sig.flagged ? '#C4A882' : '#7B5EA7';
+    signalsEl.innerHTML += `
+      <div class="signal">
+        <div class="signal-header">
+          <span class="signal-name" style="color:${sig.flagged ? '#C4A882' : '#6B6B8A'}">${sig.name}</span>
+          <span class="signal-val">${sig.value}</span>
+        </div>
+        <div class="signal-bar-bg">
+          <div class="signal-bar-fill" style="width:0%;background:${barColor}" 
+               data-width="${sig.value}%"></div>
+        </div>
+      </div>`;
+  });
+
+  setTimeout(() => {
+    document.querySelectorAll('.signal-bar-fill').forEach(bar => {
+      bar.style.width = bar.dataset.width;
+    });
+  }, 100);
+
+  document.getElementById('narrative').textContent = result.narrative;
+
+  document.getElementById('resultCard').classList.add('visible');
+}
+</script>
+</body>
+</html>
