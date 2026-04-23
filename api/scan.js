@@ -129,7 +129,7 @@ ${text}`
     ],
     tags: a > 50 ? ['AI-generated', 'manipulation detected'] : ['likely authentic', 'no manipulation'],
     narrative: a > 50
-      ? `BitMind flagged this image as AI-generated with ${a}% confidence. Patterns in the visual data match known synthetic image signatures.`
+? `BitMind flagged this image as AI-generated with ${a}% confidence. Patterns in the visual data match known AI-generated image signatures.`
       : `BitMind found no significant signs of AI generation. The image scored ${h}% likely human-created.`
   });
 }
