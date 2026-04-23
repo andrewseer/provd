@@ -77,12 +77,12 @@ ${text}`
 
       const bitmindRes = await fetch('https://api.bitmind.ai/oracle/v1/34/detect-image', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.BITMIND_KEY}`,
-          'Content-Type': `multipart/form-data; boundary=${boundary}`,
-          'Content-Length': body.length.toString()
-        },
-        body
+       headers: {
+  'Authorization': `Bearer ${process.env.BITMIND_KEY}`,
+  'Content-Type': 'application/json',
+  'x-bitmind-application': 'oracle-api'
+},
+   body: JSON.stringify({ image, rich: true })
       });
 
       const bitmindData = await bitmindRes.json();
