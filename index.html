@@ -210,7 +210,7 @@
     display: none;
     position: relative;
     overflow: hidden;
-    scroll-margin-top: 40px;
+    scroll-margin-top: 20px;
   }
 
   .result-card.visible { display: block; }
@@ -236,7 +236,6 @@
     opacity: 1;
   }
 
-  /* STAMP */
   .stamp {
     position: absolute;
     top: 32px;
@@ -263,20 +262,9 @@
     animation: stampDrop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
-  .stamp.ai {
-    color: var(--red);
-    text-shadow: 0 0 12px rgba(255, 59, 92, 0.5);
-  }
-
-  .stamp.human {
-    color: var(--aqua);
-    text-shadow: 0 0 12px rgba(0, 229, 204, 0.5);
-  }
-
-  .stamp.unclear {
-    color: var(--amber);
-    text-shadow: 0 0 12px rgba(255, 184, 77, 0.5);
-  }
+  .stamp.ai { color: var(--red); text-shadow: 0 0 12px rgba(255, 59, 92, 0.5); }
+  .stamp.human { color: var(--aqua); text-shadow: 0 0 12px rgba(0, 229, 204, 0.5); }
+  .stamp.unclear { color: var(--amber); text-shadow: 0 0 12px rgba(255, 184, 77, 0.5); }
 
   .stamp-sub {
     font-size: 9px;
@@ -296,7 +284,7 @@
     display: flex;
     align-items: center;
     gap: 32px;
-    margin-bottom: 36px;
+    margin-bottom: 28px;
     position: relative;
     z-index: 1;
   }
@@ -368,6 +356,16 @@
     background: rgba(255, 59, 92, 0.08);
   }
 
+  .secondary-stat {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #888888;
+    margin-top: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .secondary-stat b { color: #CCCCCC; font-weight: 400; }
+
   .breakdown {
     display: flex;
     gap: 12px;
@@ -414,11 +412,7 @@
     z-index: 1;
   }
 
-  .signal {
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 1;
-  }
+  .signal { margin-bottom: 20px; position: relative; z-index: 1; }
 
   .signal-header {
     display: flex;
@@ -426,17 +420,8 @@
     margin-bottom: 10px;
   }
 
-  .signal-name {
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    color: #FFFFFF;
-  }
-
-  .signal-val {
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    color: #AAAAAA;
-  }
+  .signal-name { font-family: 'DM Mono', monospace; font-size: 13px; color: #FFFFFF; }
+  .signal-val { font-family: 'DM Mono', monospace; font-size: 13px; color: #AAAAAA; }
 
   .signal-bar-bg {
     height: 2px;
@@ -464,7 +449,52 @@
     z-index: 1;
   }
 
-  .loading { text-align: center; padding: 48px; display: none; scroll-margin-top: 40px; }
+  .feedback-row {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #1A1A1A;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  .feedback-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #888888;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .feedback-btn {
+    background: transparent;
+    color: #AAAAAA;
+    border: 1px solid #2A2A2A;
+    border-radius: 1px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: lowercase;
+  }
+
+  .feedback-btn:hover {
+    color: #FFFFFF;
+    border-color: #555555;
+  }
+
+  .feedback-btn.submitted {
+    color: var(--aqua);
+    border-color: rgba(0, 229, 204, 0.4);
+    pointer-events: none;
+  }
+
+  .loading { text-align: center; padding: 48px; display: none; scroll-margin-top: 20px; }
   .loading.visible { display: block; }
 
   .loading-text {
@@ -544,12 +574,13 @@
       </svg>
       <div class="score-inner">
         <span class="score-number" id="scoreNumber">0</span>
-        <span class="score-label">human score</span>
+        <span class="score-label" id="scoreLabel">human score</span>
       </div>
     </div>
     <div class="verdict">
       <div class="verdict-title" id="verdictTitle">—</div>
       <div class="verdict-tags" id="verdictTags"></div>
+      <div class="secondary-stat" id="secondaryStat"></div>
     </div>
   </div>
 
@@ -558,6 +589,12 @@
   <div class="signals-title">signal breakdown</div>
   <div id="signals"></div>
   <div class="narrative" id="narrative"></div>
+
+  <div class="feedback-row">
+    <span class="feedback-label">was this right?</span>
+    <button class="feedback-btn" onclick="submitFeedback('correct', this)">yes, correct</button>
+    <button class="feedback-btn" onclick="submitFeedback('wrong', this)">no, flag it</button>
+  </div>
 </div>
 
 <div class="footer">provd · built on reality network</div>
@@ -565,6 +602,7 @@
 <script>
 let currentMode = 'text';
 let imageBase64 = null;
+let lastResult = null;
 
 function setMode(mode, btn) {
   currentMode = mode;
@@ -626,7 +664,6 @@ imageDrop.addEventListener('drop', (e) => {
   const file = e.dataTransfer.files[0];
   processFile(file);
 });
-
 ['dragover', 'drop'].forEach(evt => {
   window.addEventListener(evt, (e) => { e.preventDefault(); });
 });
@@ -647,7 +684,6 @@ async function runScan() {
   document.getElementById('loading').classList.add('visible');
   document.getElementById('resultCard').classList.remove('visible');
 
-  // Scroll to loading state so user sees something happening
   setTimeout(() => {
     document.getElementById('loading').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 50);
@@ -665,14 +701,14 @@ async function runScan() {
 
     const result = await response.json();
     if (result.error) throw new Error(result.error);
+    lastResult = result;
     displayResult(result);
 
-   // Auto-scroll to the result card once it's rendered
-setTimeout(() => {
-  const card = document.getElementById('resultCard');
-  const cardTop = card.getBoundingClientRect().top + window.pageYOffset - 20;
-  window.scrollTo({ top: cardTop, behavior: 'smooth' });
-}, 200);
+    setTimeout(() => {
+      const card = document.getElementById('resultCard');
+      const cardTop = card.getBoundingClientRect().top + window.pageYOffset - 20;
+      window.scrollTo({ top: cardTop, behavior: 'smooth' });
+    }, 200);
 
   } catch (err) {
     alert('something went wrong — check the console for details');
@@ -684,15 +720,26 @@ setTimeout(() => {
 }
 
 function displayResult(result) {
-  const score = result.humanScore;
-  const isAI = score < 40;
-  const isHuman = score >= 70;
+  const humanScore = result.humanScore;
+  const aiScore = 100 - humanScore;
+  const leadWithAI = aiScore > humanScore;
+
+  const isAI = humanScore < 40;
+  const isHuman = humanScore >= 70;
 
   const resultCard = document.getElementById('resultCard');
   resultCard.className = 'result-card visible';
   if (isAI) resultCard.classList.add('verdict-ai');
   else if (isHuman) resultCard.classList.add('verdict-human');
 
+  // Reset feedback buttons
+  document.querySelectorAll('.feedback-btn').forEach(b => {
+    b.classList.remove('submitted');
+    b.textContent = b.dataset.original || b.textContent;
+    if (!b.dataset.original) b.dataset.original = b.textContent;
+  });
+
+  // Stamp
   const stamp = document.getElementById('stamp');
   stamp.classList.remove('visible', 'ai', 'human', 'unclear');
 
@@ -709,10 +756,16 @@ function displayResult(result) {
 
   setTimeout(() => stamp.classList.add('visible'), 400);
 
-  const circ = 2 * Math.PI * 64;
-  const fill = (score / 100) * circ;
+  // Lead with higher number
+  const displayScore = leadWithAI ? aiScore : humanScore;
+  const displayLabel = leadWithAI ? 'AI score' : 'human score';
+  const secondaryLabel = leadWithAI ? 'human likelihood' : 'AI likelihood';
+  const secondaryValue = leadWithAI ? humanScore : aiScore;
+
   const color = isHuman ? '#00E5CC' : isAI ? '#FF3B5C' : '#FFB84D';
 
+  const circ = 2 * Math.PI * 64;
+  const fill = (displayScore / 100) * circ;
   const arc = document.getElementById('scoreArc');
   arc.setAttribute('stroke', color);
   setTimeout(() => {
@@ -721,12 +774,13 @@ function displayResult(result) {
 
   let display = 0;
   const timer = setInterval(() => {
-    display = Math.min(display + 2, score);
+    display = Math.min(display + 2, displayScore);
     document.getElementById('scoreNumber').textContent = display;
-    if (display >= score) clearInterval(timer);
+    if (display >= displayScore) clearInterval(timer);
   }, 20);
 
   document.getElementById('scoreNumber').style.color = color;
+  document.getElementById('scoreLabel').textContent = displayLabel;
 
   document.getElementById('verdictTitle').textContent =
     isHuman ? 'likely human' : isAI ? 'likely AI-generated' : 'low confidence';
@@ -740,6 +794,9 @@ function displayResult(result) {
     span.textContent = tag;
     tagsEl.appendChild(span);
   });
+
+  document.getElementById('secondaryStat').innerHTML =
+    `${secondaryLabel}: <b>${secondaryValue}</b>`;
 
   const breakdownEl = document.getElementById('breakdown');
   if (result.breakdown) {
@@ -781,6 +838,17 @@ function displayResult(result) {
   }, 100);
 
   document.getElementById('narrative').textContent = result.narrative;
+}
+
+async function submitFeedback(type, btn) {
+  // For now, just log it and show confirmation. Wire to backend later.
+  console.log('Feedback:', type, lastResult);
+
+  document.querySelectorAll('.feedback-btn').forEach(b => b.classList.add('submitted'));
+  btn.textContent = type === 'correct' ? 'thanks' : 'flagged';
+
+  // TODO: POST to /api/feedback when backend is ready
+  // await fetch('/api/feedback', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ type, result: lastResult }) });
 }
 </script>
 </body>
