@@ -56,14 +56,14 @@ ${text}`
 
     // Image scoring via BitMind
     if (image) {
-      const bitmindRes = await fetch('https://api.bitmind.ai/oracle/v1/detect', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': process.env.BITMIND_KEY
-        },
-        body: JSON.stringify({ image })
-      });
+     const bitmindRes = await fetch('https://api.bitmind.ai/oracle/v1/34/detect-image', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${process.env.BITMIND_KEY}`
+  },
+  body: JSON.stringify({ image, rich: true })
+});
 
       const bitmindData = await bitmindRes.json();
       // BitMind returns a probability that the image is AI-generated
