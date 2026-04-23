@@ -17,21 +17,21 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 48px 20px;
+    padding: 52px 24px;
   }
 
   .logo {
     font-family: 'Bellefair', serif;
-    font-size: 52px;
+    font-size: 64px;
     color: #00E5CC;
     letter-spacing: 0.04em;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .tagline {
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: #555555;
+    font-size: 12px;
+    color: #666666;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     margin-bottom: 52px;
@@ -39,7 +39,7 @@
 
   .top-line {
     width: 100%;
-    max-width: 600px;
+    max-width: 640px;
     height: 1px;
     background: linear-gradient(90deg, transparent, #00E5CC, transparent);
     margin-bottom: 52px;
@@ -48,44 +48,44 @@
 
   .card {
     background: #0A0A0A;
-    border: 1px solid #222222;
+    border: 1px solid #2A2A2A;
     border-radius: 2px;
-    padding: 32px;
+    padding: 36px;
     width: 100%;
-    max-width: 600px;
+    max-width: 640px;
     margin-bottom: 24px;
   }
 
   .card-label {
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: #555555;
+    font-size: 12px;
+    color: #666666;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
   }
 
   .mode-toggle {
     display: flex;
     gap: 2px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     background: #000000;
-    border: 1px solid #222222;
+    border: 1px solid #2A2A2A;
     border-radius: 2px;
-    padding: 3px;
+    padding: 4px;
   }
 
   .mode-btn {
     flex: 1;
     background: transparent;
-    color: #555555;
+    color: #666666;
     border: none;
     border-radius: 1px;
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
+    font-size: 12px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    padding: 10px;
+    padding: 12px;
     cursor: pointer;
     transition: all 0.2s;
     width: auto;
@@ -93,39 +93,39 @@
   }
 
   .mode-btn.active {
-    background: #111111;
+    background: #141414;
     color: #00E5CC;
     border: 1px solid #00E5CC22;
   }
 
-  .mode-btn:hover:not(.active) { color: #AAAAAA; }
+  .mode-btn:hover:not(.active) { color: #CCCCCC; }
 
   textarea {
     width: 100%;
     background: #050505;
-    border: 1px solid #222222;
+    border: 1px solid #2A2A2A;
     border-radius: 1px;
     color: #FFFFFF;
     font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 300;
     line-height: 1.7;
-    padding: 16px;
+    padding: 20px;
     resize: vertical;
-    min-height: 160px;
+    min-height: 180px;
     outline: none;
     transition: border-color 0.2s;
   }
 
   textarea:focus { border-color: #00E5CC55; }
-  textarea::placeholder { color: #333333; }
+  textarea::placeholder { color: #444444; }
 
   .image-drop {
     width: 100%;
     background: #050505;
-    border: 1px dashed #333333;
+    border: 1px dashed #2A2A2A;
     border-radius: 1px;
-    padding: 48px 16px;
+    padding: 56px 16px;
     text-align: center;
     cursor: pointer;
     transition: border-color 0.2s;
@@ -138,22 +138,22 @@
 
   .drop-label {
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: #777777;
+    font-size: 13px;
+    color: #888888;
     letter-spacing: 0.08em;
   }
 
   .drop-sub {
     font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    color: #444444;
+    font-size: 11px;
+    color: #555555;
     letter-spacing: 0.08em;
-    margin-top: 6px;
+    margin-top: 8px;
   }
 
   #imagePreview {
     width: 100%;
-    max-height: 240px;
+    max-height: 260px;
     object-fit: contain;
     border-radius: 1px;
     display: none;
@@ -170,13 +170,13 @@
     border: none;
     border-radius: 1px;
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 400;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    padding: 16px;
+    padding: 18px;
     cursor: pointer;
-    margin-top: 16px;
+    margin-top: 20px;
     transition: opacity 0.2s;
   }
 
@@ -185,11 +185,11 @@
 
   .result-card {
     background: #0A0A0A;
-    border: 1px solid #222222;
+    border: 1px solid #2A2A2A;
     border-radius: 2px;
-    padding: 32px;
+    padding: 36px;
     width: 100%;
-    max-width: 600px;
+    max-width: 640px;
     display: none;
   }
 
@@ -198,14 +198,14 @@
   .score-row {
     display: flex;
     align-items: center;
-    gap: 28px;
-    margin-bottom: 32px;
+    gap: 32px;
+    margin-bottom: 36px;
   }
 
   .score-circle {
     position: relative;
-    width: 104px;
-    height: 104px;
+    width: 120px;
+    height: 120px;
     flex-shrink: 0;
   }
 
@@ -222,45 +222,45 @@
 
   .score-number {
     font-family: 'Bellefair', serif;
-    font-size: 30px;
+    font-size: 36px;
     line-height: 1;
   }
 
   .score-label {
     font-family: 'DM Mono', monospace;
-    font-size: 8px;
-    color: #555555;
+    font-size: 9px;
+    color: #666666;
     letter-spacing: 0.1em;
-    margin-top: 3px;
+    margin-top: 4px;
   }
 
   .verdict { flex: 1; }
 
   .verdict-title {
     font-family: 'DM Sans', sans-serif;
-    font-size: 22px;
+    font-size: 26px;
     font-weight: 300;
     color: #FFFFFF;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
 
-  .verdict-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .verdict-tags { display: flex; gap: 8px; flex-wrap: wrap; }
 
   .tag {
     font-family: 'DM Mono', monospace;
-    font-size: 9px;
+    font-size: 10px;
     color: #00E5CC;
     border: 1px solid #00E5CC33;
-    padding: 3px 8px;
+    padding: 4px 10px;
     border-radius: 1px;
     letter-spacing: 0.06em;
   }
 
   .breakdown {
     display: flex;
-    gap: 10px;
-    margin-bottom: 24px;
-    padding-bottom: 24px;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding-bottom: 28px;
     border-bottom: 1px solid #1A1A1A;
   }
 
@@ -269,48 +269,57 @@
     background: #000000;
     border: 1px solid #1A1A1A;
     border-radius: 1px;
-    padding: 14px;
+    padding: 16px;
     text-align: center;
   }
 
   .breakdown-val {
     font-family: 'Bellefair', serif;
-    font-size: 24px;
+    font-size: 28px;
     color: #00E5CC;
   }
 
   .breakdown-label {
     font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    color: #555555;
+    font-size: 10px;
+    color: #666666;
     letter-spacing: 0.08em;
     margin-top: 4px;
   }
 
   .signals-title {
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: #555555;
-    letter-spacing: 0.15em;
+    font-size: 11px;
+    color: #666666;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    margin-bottom: 16px;
-    padding-top: 24px;
+    margin-bottom: 20px;
+    padding-top: 28px;
     border-top: 1px solid #1A1A1A;
   }
 
-  .signal { margin-bottom: 16px; }
+  .signal { margin-bottom: 18px; }
 
   .signal-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 7px;
+    margin-bottom: 8px;
   }
 
-  .signal-name { font-family: 'DM Mono', monospace; font-size: 11px; color: #888888; }
-  .signal-val { font-family: 'DM Mono', monospace; font-size: 11px; color: #555555; }
+  .signal-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: #AAAAAA;
+  }
+
+  .signal-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: #666666;
+  }
 
   .signal-bar-bg {
-    height: 1px;
+    height: 2px;
     background: #1A1A1A;
     border-radius: 1px;
     overflow: hidden;
@@ -323,24 +332,24 @@
   }
 
   .narrative {
-    margin-top: 24px;
-    padding-top: 24px;
+    margin-top: 28px;
+    padding-top: 28px;
     border-top: 1px solid #1A1A1A;
     font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 300;
-    color: #AAAAAA;
+    color: #CCCCCC;
     line-height: 1.8;
   }
 
-  .loading { text-align: center; padding: 40px; display: none; }
+  .loading { text-align: center; padding: 48px; display: none; }
   .loading.visible { display: block; }
 
   .loading-text {
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: #555555;
-    letter-spacing: 0.15em;
+    font-size: 12px;
+    color: #666666;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     animation: pulse 1.5s ease-in-out infinite;
   }
@@ -352,10 +361,10 @@
 
   .footer {
     font-family: 'DM Mono', monospace;
-    font-size: 9px;
+    font-size: 10px;
     color: #333333;
     letter-spacing: 0.12em;
-    margin-top: 56px;
+    margin-top: 64px;
     text-transform: uppercase;
   }
 </style>
@@ -397,10 +406,10 @@
 <div class="result-card" id="resultCard">
   <div class="score-row">
     <div class="score-circle">
-      <svg width="104" height="104" viewBox="0 0 104 104">
-        <circle cx="52" cy="52" r="46" fill="none" stroke="#111111" stroke-width="3"/>
-        <circle id="scoreArc" cx="52" cy="52" r="46" fill="none" stroke="#00E5CC" stroke-width="3"
-          stroke-dasharray="0 289.03" stroke-linecap="round"/>
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="54" fill="none" stroke="#111111" stroke-width="3"/>
+        <circle id="scoreArc" cx="60" cy="60" r="54" fill="none" stroke="#00E5CC" stroke-width="3"
+          stroke-dasharray="0 339.29" stroke-linecap="round"/>
       </svg>
       <div class="score-inner">
         <span class="score-number" id="scoreNumber">0</span>
@@ -503,7 +512,7 @@ async function runScan() {
 
 function displayResult(result) {
   const score = result.humanScore;
-  const circ = 2 * Math.PI * 46;
+  const circ = 2 * Math.PI * 54;
   const fill = (score / 100) * circ;
   const color = score >= 70 ? '#00E5CC' : score >= 40 ? '#FFFFFF' : '#666666';
 
@@ -555,7 +564,7 @@ function displayResult(result) {
     signalsEl.innerHTML += `
       <div class="signal">
         <div class="signal-header">
-          <span class="signal-name" style="color:${sig.flagged ? '#FFFFFF' : '#888888'}">${sig.name}</span>
+          <span class="signal-name" style="color:${sig.flagged ? '#FFFFFF' : '#AAAAAA'}">${sig.name}</span>
           <span class="signal-val">${sig.value}</span>
         </div>
         <div class="signal-bar-bg">
