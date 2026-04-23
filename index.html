@@ -15,6 +15,8 @@
     --amber: #FFB84D;
   }
 
+  html { scroll-behavior: smooth; }
+
   body {
     background: #000000;
     color: #FFFFFF;
@@ -208,6 +210,7 @@
     display: none;
     position: relative;
     overflow: hidden;
+    scroll-margin-top: 40px;
   }
 
   .result-card.visible { display: block; }
@@ -263,7 +266,6 @@
   .stamp.ai {
     color: var(--red);
     text-shadow: 0 0 12px rgba(255, 59, 92, 0.5);
-    box-shadow: inset 0 0 0 1px rgba(255, 59, 92, 0.3);
   }
 
   .stamp.human {
@@ -462,7 +464,7 @@
     z-index: 1;
   }
 
-  .loading { text-align: center; padding: 48px; display: none; }
+  .loading { text-align: center; padding: 48px; display: none; scroll-margin-top: 40px; }
   .loading.visible { display: block; }
 
   .loading-text {
@@ -605,7 +607,6 @@ function handleImageUpload(event) {
   processFile(event.target.files[0]);
 }
 
-// Drag and drop on the upload box
 const imageDrop = document.getElementById('imageDrop');
 ['dragenter', 'dragover'].forEach(evt => {
   imageDrop.addEventListener(evt, (e) => {
@@ -626,7 +627,6 @@ imageDrop.addEventListener('drop', (e) => {
   processFile(file);
 });
 
-// Prevent page from navigating when dragging anywhere else on the page
 ['dragover', 'drop'].forEach(evt => {
   window.addEventListener(evt, (e) => { e.preventDefault(); });
 });
@@ -647,6 +647,11 @@ async function runScan() {
   document.getElementById('loading').classList.add('visible');
   document.getElementById('resultCard').classList.remove('visible');
 
+  // Scroll to loading state so user sees something happening
+  setTimeout(() => {
+    document.getElementById('loading').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 50);
+
   try {
     const body = {};
     if (currentMode !== 'image') body.text = text;
@@ -661,6 +666,11 @@ async function runScan() {
     const result = await response.json();
     if (result.error) throw new Error(result.error);
     displayResult(result);
+
+    // Auto-scroll to the result card once it's rendered
+    setTimeout(() => {
+      document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
 
   } catch (err) {
     alert('something went wrong — check the console for details');
@@ -681,12 +691,11 @@ function displayResult(result) {
   if (isAI) resultCard.classList.add('verdict-ai');
   else if (isHuman) resultCard.classList.add('verdict-human');
 
-  // Stamp
   const stamp = document.getElementById('stamp');
   stamp.classList.remove('visible', 'ai', 'human', 'unclear');
 
   if (isAI) {
-    stamp.innerHTML = 'PROVD AI<div class="stamp-sub">synthetic</div>';
+    stamp.innerHTML = 'PROVD AI<div class="stamp-sub">AI-generated</div>';
     stamp.classList.add('ai');
   } else if (isHuman) {
     stamp.innerHTML = 'PROVD HUMAN<div class="stamp-sub">verified</div>';
@@ -696,10 +705,8 @@ function displayResult(result) {
     stamp.classList.add('unclear');
   }
 
-  // Delay the stamp animation slightly so it reads as a reveal
   setTimeout(() => stamp.classList.add('visible'), 400);
 
-  // Arc + number color
   const circ = 2 * Math.PI * 64;
   const fill = (score / 100) * circ;
   const color = isHuman ? '#00E5CC' : isAI ? '#FF3B5C' : '#FFB84D';
@@ -720,20 +727,18 @@ function displayResult(result) {
   document.getElementById('scoreNumber').style.color = color;
 
   document.getElementById('verdictTitle').textContent =
-    isHuman ? 'likely human' : isAI ? 'likely AI generated' : 'low confidence';
+    isHuman ? 'likely human' : isAI ? 'likely AI-generated' : 'low confidence';
 
-  // Tags
   const tagsEl = document.getElementById('verdictTags');
   tagsEl.innerHTML = '';
   (result.tags || []).forEach(tag => {
     const span = document.createElement('span');
-    const isDangerTag = /ai|deepfake|synthetic|generated|detected/i.test(tag);
+    const isDangerTag = /ai|generated|manipulation|detected/i.test(tag);
     span.className = 'tag ' + (isDangerTag ? 'ai' : 'human');
     span.textContent = tag;
     tagsEl.appendChild(span);
   });
 
-  // Breakdown (text + image combined)
   const breakdownEl = document.getElementById('breakdown');
   if (result.breakdown) {
     breakdownEl.style.display = 'flex';
@@ -750,7 +755,6 @@ function displayResult(result) {
     breakdownEl.style.display = 'none';
   }
 
-  // Signals
   const signalsEl = document.getElementById('signals');
   signalsEl.innerHTML = '';
   (result.signals || []).forEach(sig => {
