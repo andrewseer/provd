@@ -90,7 +90,7 @@ ${text}`
 
       // BitMind returns prediction: true/false and confidence: 0-1
       // prediction: true means AI generated
-      const isAI = bitmindData?.prediction === true;
+      const isAI = bitmindData?.isAI === true;
       const confidence = bitmindData?.confidence ?? 0.5;
       const aiProbability = isAI ? confidence : confidence;
 
