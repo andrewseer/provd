@@ -667,10 +667,12 @@ async function runScan() {
     if (result.error) throw new Error(result.error);
     displayResult(result);
 
-    // Auto-scroll to the result card once it's rendered
-    setTimeout(() => {
-      document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+   // Auto-scroll to the result card once it's rendered
+setTimeout(() => {
+  const card = document.getElementById('resultCard');
+  const cardTop = card.getBoundingClientRect().top + window.pageYOffset - 20;
+  window.scrollTo({ top: cardTop, behavior: 'smooth' });
+}, 200);
 
   } catch (err) {
     alert('something went wrong — check the console for details');
