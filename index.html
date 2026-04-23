@@ -9,6 +9,12 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  :root {
+    --aqua: #00E5CC;
+    --red: #FF3B5C;
+    --amber: #FFB84D;
+  }
+
   body {
     background: #000000;
     color: #FFFFFF;
@@ -23,7 +29,7 @@
   .logo {
     font-family: 'Bellefair', serif;
     font-size: 64px;
-    color: #00E5CC;
+    color: var(--aqua);
     letter-spacing: 0.04em;
     margin-bottom: 8px;
   }
@@ -41,7 +47,7 @@
     width: 100%;
     max-width: 640px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, #00E5CC, transparent);
+    background: linear-gradient(90deg, transparent, var(--aqua), transparent);
     margin-bottom: 52px;
     opacity: 0.4;
   }
@@ -94,8 +100,8 @@
 
   .mode-btn.active {
     background: #141414;
-    color: #00E5CC;
-    border: 1px solid #00E5CC22;
+    color: var(--aqua);
+    border: 1px solid rgba(0, 229, 204, 0.2);
   }
 
   .mode-btn:hover:not(.active) { color: #CCCCCC; }
@@ -117,7 +123,7 @@
     transition: border-color 0.2s;
   }
 
-  textarea:focus { border-color: #00E5CC55; }
+  textarea:focus { border-color: rgba(0, 229, 204, 0.35); }
   textarea::placeholder { color: #444444; }
 
   .image-drop {
@@ -133,8 +139,8 @@
   }
 
   .image-drop.active { display: block; }
-  .image-drop:hover { border-color: #00E5CC55; }
-  .image-drop.has-image { border-style: solid; border-color: #00E5CC33; padding: 16px; }
+  .image-drop:hover { border-color: rgba(0, 229, 204, 0.35); }
+  .image-drop.has-image { border-style: solid; border-color: rgba(0, 229, 204, 0.2); padding: 16px; }
 
   .drop-label {
     font-family: 'DM Mono', monospace;
@@ -165,7 +171,7 @@
 
   button.scan-btn {
     width: 100%;
-    background: #00E5CC;
+    background: var(--aqua);
     color: #000000;
     border: none;
     border-radius: 1px;
@@ -187,25 +193,83 @@
     background: #0A0A0A;
     border: 1px solid #2A2A2A;
     border-radius: 2px;
-    padding: 36px;
+    padding: 40px 36px;
     width: 100%;
     max-width: 640px;
     display: none;
+    position: relative;
+    overflow: hidden;
   }
 
   .result-card.visible { display: block; }
+
+  .result-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .result-card.verdict-ai::before {
+    background: radial-gradient(circle at 50% 0%, rgba(255, 59, 92, 0.15), transparent 60%);
+    opacity: 1;
+  }
+
+  .result-card.verdict-ai {
+    border-color: rgba(255, 59, 92, 0.35);
+  }
+
+  .result-card.verdict-human::before {
+    background: radial-gradient(circle at 50% 0%, rgba(0, 229, 204, 0.1), transparent 60%);
+    opacity: 1;
+  }
+
+  .verdict-banner {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 1px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .verdict-banner.ai {
+    color: var(--red);
+    background: rgba(255, 59, 92, 0.1);
+    border: 1px solid rgba(255, 59, 92, 0.35);
+  }
+
+  .verdict-banner.human {
+    color: var(--aqua);
+    background: rgba(0, 229, 204, 0.08);
+    border: 1px solid rgba(0, 229, 204, 0.3);
+  }
+
+  .verdict-banner.unclear {
+    color: var(--amber);
+    background: rgba(255, 184, 77, 0.08);
+    border: 1px solid rgba(255, 184, 77, 0.3);
+  }
 
   .score-row {
     display: flex;
     align-items: center;
     gap: 32px;
     margin-bottom: 36px;
+    position: relative;
+    z-index: 1;
   }
 
   .score-circle {
     position: relative;
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
     flex-shrink: 0;
   }
 
@@ -222,26 +286,29 @@
 
   .score-number {
     font-family: 'Bellefair', serif;
-    font-size: 36px;
+    font-size: 54px;
     line-height: 1;
+    font-weight: 400;
   }
 
   .score-label {
     font-family: 'DM Mono', monospace;
     font-size: 9px;
     color: #666666;
-    letter-spacing: 0.1em;
-    margin-top: 4px;
+    letter-spacing: 0.12em;
+    margin-top: 6px;
+    text-transform: uppercase;
   }
 
   .verdict { flex: 1; }
 
   .verdict-title {
     font-family: 'DM Sans', sans-serif;
-    font-size: 26px;
+    font-size: 32px;
     font-weight: 300;
     color: #FFFFFF;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
+    line-height: 1.15;
   }
 
   .verdict-tags { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -249,11 +316,20 @@
   .tag {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
-    color: #00E5CC;
-    border: 1px solid #00E5CC33;
     padding: 4px 10px;
     border-radius: 1px;
     letter-spacing: 0.06em;
+  }
+
+  .tag.human {
+    color: var(--aqua);
+    border: 1px solid rgba(0, 229, 204, 0.3);
+  }
+
+  .tag.ai {
+    color: var(--red);
+    border: 1px solid rgba(255, 59, 92, 0.4);
+    background: rgba(255, 59, 92, 0.05);
   }
 
   .breakdown {
@@ -262,6 +338,8 @@
     margin-bottom: 28px;
     padding-bottom: 28px;
     border-bottom: 1px solid #1A1A1A;
+    position: relative;
+    z-index: 1;
   }
 
   .breakdown-item {
@@ -276,7 +354,7 @@
   .breakdown-val {
     font-family: 'Bellefair', serif;
     font-size: 28px;
-    color: #00E5CC;
+    color: var(--aqua);
   }
 
   .breakdown-label {
@@ -293,23 +371,29 @@
     color: #666666;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
     padding-top: 28px;
     border-top: 1px solid #1A1A1A;
+    position: relative;
+    z-index: 1;
   }
 
-  .signal { margin-bottom: 18px; }
+  .signal {
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+  }
 
   .signal-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
 
   .signal-name {
     font-family: 'DM Mono', monospace;
     font-size: 13px;
-    color: #AAAAAA;
+    color: #CCCCCC;
   }
 
   .signal-val {
@@ -340,6 +424,8 @@
     font-weight: 300;
     color: #CCCCCC;
     line-height: 1.8;
+    position: relative;
+    z-index: 1;
   }
 
   .loading { text-align: center; padding: 48px; display: none; }
@@ -404,12 +490,14 @@
 </div>
 
 <div class="result-card" id="resultCard">
+  <div id="verdictBanner" class="verdict-banner"></div>
+
   <div class="score-row">
     <div class="score-circle">
-      <svg width="120" height="120" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="54" fill="none" stroke="#111111" stroke-width="3"/>
-        <circle id="scoreArc" cx="60" cy="60" r="54" fill="none" stroke="#00E5CC" stroke-width="3"
-          stroke-dasharray="0 339.29" stroke-linecap="round"/>
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="64" fill="none" stroke="#111111" stroke-width="3"/>
+        <circle id="scoreArc" cx="70" cy="70" r="64" fill="none" stroke="#00E5CC" stroke-width="3"
+          stroke-dasharray="0 402.12" stroke-linecap="round"/>
       </svg>
       <div class="score-inner">
         <span class="score-number" id="scoreNumber">0</span>
@@ -512,9 +600,32 @@ async function runScan() {
 
 function displayResult(result) {
   const score = result.humanScore;
-  const circ = 2 * Math.PI * 54;
+  const isAI = score < 40;
+  const isHuman = score >= 70;
+  const isUnclear = !isAI && !isHuman;
+
+  const resultCard = document.getElementById('resultCard');
+  resultCard.className = 'result-card visible';
+  if (isAI) resultCard.classList.add('verdict-ai');
+  else if (isHuman) resultCard.classList.add('verdict-human');
+
+  // Verdict banner
+  const banner = document.getElementById('verdictBanner');
+  if (isAI) {
+    banner.textContent = '⚠ ai detected';
+    banner.className = 'verdict-banner ai';
+  } else if (isHuman) {
+    banner.textContent = '✓ verified human';
+    banner.className = 'verdict-banner human';
+  } else {
+    banner.textContent = '? low confidence';
+    banner.className = 'verdict-banner unclear';
+  }
+
+  // Arc + number color
+  const circ = 2 * Math.PI * 64;
   const fill = (score / 100) * circ;
-  const color = score >= 70 ? '#00E5CC' : score >= 40 ? '#FFFFFF' : '#666666';
+  const color = isHuman ? '#00E5CC' : isAI ? '#FF3B5C' : '#FFB84D';
 
   const arc = document.getElementById('scoreArc');
   arc.setAttribute('stroke', color);
@@ -530,26 +641,32 @@ function displayResult(result) {
   }, 20);
 
   document.getElementById('scoreNumber').style.color = color;
-  document.getElementById('verdictTitle').textContent =
-    score >= 70 ? 'likely human' : score >= 40 ? 'origin unclear' : 'likely AI generated';
 
+  // Verdict title
+  document.getElementById('verdictTitle').textContent =
+    isHuman ? 'likely human' : isAI ? 'likely AI generated' : 'low confidence';
+
+  // Tags
   const tagsEl = document.getElementById('verdictTags');
   tagsEl.innerHTML = '';
   (result.tags || []).forEach(tag => {
     const span = document.createElement('span');
-    span.className = 'tag';
+    const isDangerTag = /ai|deepfake|synthetic|generated|detected/i.test(tag);
+    span.className = 'tag ' + (isDangerTag ? 'ai' : 'human');
     span.textContent = tag;
     tagsEl.appendChild(span);
   });
 
+  // Breakdown (when both text + image scanned)
   const breakdownEl = document.getElementById('breakdown');
   if (result.breakdown) {
     breakdownEl.style.display = 'flex';
     breakdownEl.innerHTML = '';
     Object.entries(result.breakdown).forEach(([key, val]) => {
+      const valColor = val >= 70 ? '#00E5CC' : val < 40 ? '#FF3B5C' : '#FFB84D';
       breakdownEl.innerHTML += `
         <div class="breakdown-item">
-          <div class="breakdown-val">${val}</div>
+          <div class="breakdown-val" style="color:${valColor}">${val}</div>
           <div class="breakdown-label">${key} score</div>
         </div>`;
     });
@@ -557,14 +674,16 @@ function displayResult(result) {
     breakdownEl.style.display = 'none';
   }
 
+  // Signals
   const signalsEl = document.getElementById('signals');
   signalsEl.innerHTML = '';
   (result.signals || []).forEach(sig => {
-    const barColor = sig.flagged ? '#FFFFFF' : '#00E5CC';
+    const barColor = sig.flagged ? '#FF3B5C' : '#00E5CC';
+    const nameColor = sig.flagged ? '#FF3B5C' : '#CCCCCC';
     signalsEl.innerHTML += `
       <div class="signal">
         <div class="signal-header">
-          <span class="signal-name" style="color:${sig.flagged ? '#FFFFFF' : '#AAAAAA'}">${sig.name}</span>
+          <span class="signal-name" style="color:${nameColor}">${sig.name}</span>
           <span class="signal-val">${sig.value}</span>
         </div>
         <div class="signal-bar-bg">
@@ -580,7 +699,6 @@ function displayResult(result) {
   }, 100);
 
   document.getElementById('narrative').textContent = result.narrative;
-  document.getElementById('resultCard').classList.add('visible');
 }
 </script>
 </body>
