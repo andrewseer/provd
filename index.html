@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Provd — is it real?</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Bellefair&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Bellefair&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap');
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -31,16 +31,17 @@
     font-size: 64px;
     color: var(--aqua);
     letter-spacing: 0.04em;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
 
   .tagline {
     font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: #666666;
-    letter-spacing: 0.2em;
+    font-size: 13px;
+    color: #FFFFFF;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     margin-bottom: 52px;
+    opacity: 0.85;
   }
 
   .top-line {
@@ -49,7 +50,7 @@
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--aqua), transparent);
     margin-bottom: 52px;
-    opacity: 0.4;
+    opacity: 0.6;
   }
 
   .card {
@@ -65,8 +66,8 @@
   .card-label {
     font-family: 'DM Mono', monospace;
     font-size: 12px;
-    color: #666666;
-    letter-spacing: 0.18em;
+    color: #CCCCCC;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     margin-bottom: 18px;
   }
@@ -84,7 +85,7 @@
   .mode-btn {
     flex: 1;
     background: transparent;
-    color: #666666;
+    color: #AAAAAA;
     border: none;
     border-radius: 1px;
     font-family: 'DM Mono', monospace;
@@ -101,10 +102,10 @@
   .mode-btn.active {
     background: #141414;
     color: var(--aqua);
-    border: 1px solid rgba(0, 229, 204, 0.2);
+    border: 1px solid rgba(0, 229, 204, 0.3);
   }
 
-  .mode-btn:hover:not(.active) { color: #CCCCCC; }
+  .mode-btn:hover:not(.active) { color: #FFFFFF; }
 
   textarea {
     width: 100%;
@@ -123,43 +124,51 @@
     transition: border-color 0.2s;
   }
 
-  textarea:focus { border-color: rgba(0, 229, 204, 0.35); }
-  textarea::placeholder { color: #444444; }
+  textarea:focus { border-color: rgba(0, 229, 204, 0.45); }
+  textarea::placeholder { color: #666666; }
 
   .image-drop {
     width: 100%;
     background: #050505;
-    border: 1px dashed #2A2A2A;
+    border: 1px dashed #3A3A3A;
     border-radius: 1px;
     padding: 56px 16px;
     text-align: center;
     cursor: pointer;
-    transition: border-color 0.2s;
+    transition: all 0.2s;
     display: none;
   }
 
   .image-drop.active { display: block; }
-  .image-drop:hover { border-color: rgba(0, 229, 204, 0.35); }
-  .image-drop.has-image { border-style: solid; border-color: rgba(0, 229, 204, 0.2); padding: 16px; }
+  .image-drop:hover { border-color: rgba(0, 229, 204, 0.5); }
+  .image-drop.dragging {
+    border-color: var(--aqua);
+    background: rgba(0, 229, 204, 0.04);
+  }
+  .image-drop.has-image {
+    border-style: solid;
+    border-color: rgba(0, 229, 204, 0.3);
+    padding: 16px;
+  }
 
   .drop-label {
     font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    color: #888888;
+    font-size: 14px;
+    color: #FFFFFF;
     letter-spacing: 0.08em;
   }
 
   .drop-sub {
     font-family: 'DM Mono', monospace;
     font-size: 11px;
-    color: #555555;
+    color: #888888;
     letter-spacing: 0.08em;
     margin-top: 8px;
   }
 
   #imagePreview {
     width: 100%;
-    max-height: 260px;
+    max-height: 280px;
     object-fit: contain;
     border-radius: 1px;
     display: none;
@@ -177,8 +186,8 @@
     border-radius: 1px;
     font-family: 'DM Mono', monospace;
     font-size: 13px;
-    font-weight: 400;
-    letter-spacing: 0.18em;
+    font-weight: 500;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     padding: 18px;
     cursor: pointer;
@@ -213,48 +222,72 @@
   }
 
   .result-card.verdict-ai::before {
-    background: radial-gradient(circle at 50% 0%, rgba(255, 59, 92, 0.15), transparent 60%);
+    background: radial-gradient(circle at 50% 0%, rgba(255, 59, 92, 0.18), transparent 60%);
     opacity: 1;
   }
 
-  .result-card.verdict-ai {
-    border-color: rgba(255, 59, 92, 0.35);
-  }
+  .result-card.verdict-ai { border-color: rgba(255, 59, 92, 0.4); }
 
   .result-card.verdict-human::before {
-    background: radial-gradient(circle at 50% 0%, rgba(0, 229, 204, 0.1), transparent 60%);
+    background: radial-gradient(circle at 50% 0%, rgba(0, 229, 204, 0.12), transparent 60%);
     opacity: 1;
   }
 
-  .verdict-banner {
-    display: inline-block;
+  /* STAMP */
+  .stamp {
+    position: absolute;
+    top: 32px;
+    right: 32px;
+    z-index: 5;
+    padding: 10px 18px;
+    border: 3px solid currentColor;
+    border-radius: 4px;
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.2em;
+    font-weight: 500;
+    font-size: 18px;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    padding: 6px 12px;
-    border-radius: 1px;
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 1;
+    transform: rotate(-8deg) scale(0);
+    opacity: 0;
+    pointer-events: none;
+    text-align: center;
+    line-height: 1.1;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
   }
 
-  .verdict-banner.ai {
+  .stamp.visible {
+    animation: stampDrop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .stamp.ai {
     color: var(--red);
-    background: rgba(255, 59, 92, 0.1);
-    border: 1px solid rgba(255, 59, 92, 0.35);
+    text-shadow: 0 0 12px rgba(255, 59, 92, 0.5);
+    box-shadow: inset 0 0 0 1px rgba(255, 59, 92, 0.3);
   }
 
-  .verdict-banner.human {
+  .stamp.human {
     color: var(--aqua);
-    background: rgba(0, 229, 204, 0.08);
-    border: 1px solid rgba(0, 229, 204, 0.3);
+    text-shadow: 0 0 12px rgba(0, 229, 204, 0.5);
   }
 
-  .verdict-banner.unclear {
+  .stamp.unclear {
     color: var(--amber);
-    background: rgba(255, 184, 77, 0.08);
-    border: 1px solid rgba(255, 184, 77, 0.3);
+    text-shadow: 0 0 12px rgba(255, 184, 77, 0.5);
+  }
+
+  .stamp-sub {
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    margin-top: 3px;
+    opacity: 0.75;
+  }
+
+  @keyframes stampDrop {
+    0% { transform: rotate(-25deg) scale(3); opacity: 0; }
+    60% { transform: rotate(-8deg) scale(1.15); opacity: 1; }
+    100% { transform: rotate(-8deg) scale(1); opacity: 1; }
   }
 
   .score-row {
@@ -293,18 +326,18 @@
 
   .score-label {
     font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    color: #666666;
-    letter-spacing: 0.12em;
+    font-size: 10px;
+    color: #AAAAAA;
+    letter-spacing: 0.14em;
     margin-top: 6px;
     text-transform: uppercase;
   }
 
-  .verdict { flex: 1; }
+  .verdict { flex: 1; padding-right: 90px; }
 
   .verdict-title {
     font-family: 'DM Sans', sans-serif;
-    font-size: 32px;
+    font-size: 30px;
     font-weight: 300;
     color: #FFFFFF;
     margin-bottom: 14px;
@@ -318,18 +351,19 @@
     font-size: 10px;
     padding: 4px 10px;
     border-radius: 1px;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
   }
 
   .tag.human {
     color: var(--aqua);
-    border: 1px solid rgba(0, 229, 204, 0.3);
+    border: 1px solid rgba(0, 229, 204, 0.4);
   }
 
   .tag.ai {
     color: var(--red);
-    border: 1px solid rgba(255, 59, 92, 0.4);
-    background: rgba(255, 59, 92, 0.05);
+    border: 1px solid rgba(255, 59, 92, 0.5);
+    background: rgba(255, 59, 92, 0.08);
   }
 
   .breakdown {
@@ -360,16 +394,16 @@
   .breakdown-label {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
-    color: #666666;
-    letter-spacing: 0.08em;
+    color: #AAAAAA;
+    letter-spacing: 0.1em;
     margin-top: 4px;
   }
 
   .signals-title {
     font-family: 'DM Mono', monospace;
     font-size: 11px;
-    color: #666666;
-    letter-spacing: 0.18em;
+    color: #AAAAAA;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     margin-bottom: 22px;
     padding-top: 28px;
@@ -393,13 +427,13 @@
   .signal-name {
     font-family: 'DM Mono', monospace;
     font-size: 13px;
-    color: #CCCCCC;
+    color: #FFFFFF;
   }
 
   .signal-val {
     font-family: 'DM Mono', monospace;
     font-size: 13px;
-    color: #666666;
+    color: #AAAAAA;
   }
 
   .signal-bar-bg {
@@ -422,7 +456,7 @@
     font-family: 'DM Sans', sans-serif;
     font-size: 15px;
     font-weight: 300;
-    color: #CCCCCC;
+    color: #DDDDDD;
     line-height: 1.8;
     position: relative;
     z-index: 1;
@@ -434,24 +468,31 @@
   .loading-text {
     font-family: 'DM Mono', monospace;
     font-size: 12px;
-    color: #666666;
-    letter-spacing: 0.18em;
+    color: #AAAAAA;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     animation: pulse 1.5s ease-in-out infinite;
   }
 
   @keyframes pulse {
-    0%, 100% { opacity: 0.3; }
+    0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }
   }
 
   .footer {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
-    color: #333333;
-    letter-spacing: 0.12em;
+    color: #666666;
+    letter-spacing: 0.14em;
     margin-top: 64px;
     text-transform: uppercase;
+  }
+
+  @media (max-width: 600px) {
+    .stamp { top: 20px; right: 20px; font-size: 14px; padding: 8px 14px; }
+    .verdict { padding-right: 0; margin-top: 70px; }
+    .score-row { flex-direction: column; gap: 20px; }
+    .verdict-title { font-size: 24px; }
   }
 </style>
 </head>
@@ -475,7 +516,7 @@
   <div class="image-drop" id="imageDrop" onclick="document.getElementById('fileInput').click()">
     <img id="imagePreview" alt="preview" />
     <div id="dropPrompt">
-      <div class="drop-label">click to upload an image</div>
+      <div class="drop-label">drop an image here or click to upload</div>
       <div class="drop-sub">jpg, png, webp — max 10mb</div>
     </div>
   </div>
@@ -490,12 +531,12 @@
 </div>
 
 <div class="result-card" id="resultCard">
-  <div id="verdictBanner" class="verdict-banner"></div>
+  <div id="stamp" class="stamp"></div>
 
   <div class="score-row">
     <div class="score-circle">
       <svg width="140" height="140" viewBox="0 0 140 140">
-        <circle cx="70" cy="70" r="64" fill="none" stroke="#111111" stroke-width="3"/>
+        <circle cx="70" cy="70" r="64" fill="none" stroke="#1A1A1A" stroke-width="3"/>
         <circle id="scoreArc" cx="70" cy="70" r="64" fill="none" stroke="#00E5CC" stroke-width="3"
           stroke-dasharray="0 402.12" stroke-linecap="round"/>
       </svg>
@@ -543,9 +584,11 @@ function setMode(mode, btn) {
   }
 }
 
-function handleImageUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+function processFile(file) {
+  if (!file || !file.type.startsWith('image/')) {
+    alert('please drop an image file');
+    return;
+  }
   const reader = new FileReader();
   reader.onload = (e) => {
     imageBase64 = e.target.result;
@@ -557,6 +600,36 @@ function handleImageUpload(event) {
   };
   reader.readAsDataURL(file);
 }
+
+function handleImageUpload(event) {
+  processFile(event.target.files[0]);
+}
+
+// Drag and drop on the upload box
+const imageDrop = document.getElementById('imageDrop');
+['dragenter', 'dragover'].forEach(evt => {
+  imageDrop.addEventListener(evt, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    imageDrop.classList.add('dragging');
+  });
+});
+['dragleave', 'drop'].forEach(evt => {
+  imageDrop.addEventListener(evt, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    imageDrop.classList.remove('dragging');
+  });
+});
+imageDrop.addEventListener('drop', (e) => {
+  const file = e.dataTransfer.files[0];
+  processFile(file);
+});
+
+// Prevent page from navigating when dragging anywhere else on the page
+['dragover', 'drop'].forEach(evt => {
+  window.addEventListener(evt, (e) => { e.preventDefault(); });
+});
 
 async function runScan() {
   const text = document.getElementById('inputText').value.trim();
@@ -602,25 +675,29 @@ function displayResult(result) {
   const score = result.humanScore;
   const isAI = score < 40;
   const isHuman = score >= 70;
-  const isUnclear = !isAI && !isHuman;
 
   const resultCard = document.getElementById('resultCard');
   resultCard.className = 'result-card visible';
   if (isAI) resultCard.classList.add('verdict-ai');
   else if (isHuman) resultCard.classList.add('verdict-human');
 
-  // Verdict banner
-  const banner = document.getElementById('verdictBanner');
+  // Stamp
+  const stamp = document.getElementById('stamp');
+  stamp.classList.remove('visible', 'ai', 'human', 'unclear');
+
   if (isAI) {
-    banner.textContent = '⚠ ai detected';
-    banner.className = 'verdict-banner ai';
+    stamp.innerHTML = 'PROVD AI<div class="stamp-sub">synthetic</div>';
+    stamp.classList.add('ai');
   } else if (isHuman) {
-    banner.textContent = '✓ verified human';
-    banner.className = 'verdict-banner human';
+    stamp.innerHTML = 'PROVD HUMAN<div class="stamp-sub">verified</div>';
+    stamp.classList.add('human');
   } else {
-    banner.textContent = '? low confidence';
-    banner.className = 'verdict-banner unclear';
+    stamp.innerHTML = 'INCONCLUSIVE<div class="stamp-sub">low confidence</div>';
+    stamp.classList.add('unclear');
   }
+
+  // Delay the stamp animation slightly so it reads as a reveal
+  setTimeout(() => stamp.classList.add('visible'), 400);
 
   // Arc + number color
   const circ = 2 * Math.PI * 64;
@@ -642,7 +719,6 @@ function displayResult(result) {
 
   document.getElementById('scoreNumber').style.color = color;
 
-  // Verdict title
   document.getElementById('verdictTitle').textContent =
     isHuman ? 'likely human' : isAI ? 'likely AI generated' : 'low confidence';
 
@@ -657,7 +733,7 @@ function displayResult(result) {
     tagsEl.appendChild(span);
   });
 
-  // Breakdown (when both text + image scanned)
+  // Breakdown (text + image combined)
   const breakdownEl = document.getElementById('breakdown');
   if (result.breakdown) {
     breakdownEl.style.display = 'flex';
@@ -679,7 +755,7 @@ function displayResult(result) {
   signalsEl.innerHTML = '';
   (result.signals || []).forEach(sig => {
     const barColor = sig.flagged ? '#FF3B5C' : '#00E5CC';
-    const nameColor = sig.flagged ? '#FF3B5C' : '#CCCCCC';
+    const nameColor = sig.flagged ? '#FF3B5C' : '#FFFFFF';
     signalsEl.innerHTML += `
       <div class="signal">
         <div class="signal-header">
