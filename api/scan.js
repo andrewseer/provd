@@ -125,12 +125,12 @@ ${text}`
   return res.status(200).json({
     humanScore: h,
     signals: [
-      { name: 'deepfake confidence', value: a, flagged: a > 50 }
+      { name: 'AI-generated confidence', value: a, flagged: a > 50 }
     ],
-    tags: a > 50 ? ['ai generated', 'deepfake detected'] : ['likely authentic', 'no deepfake'],
+    tags: a > 50 ? ['AI-generated', 'manipulation detected'] : ['likely authentic', 'no manipulation'],
     narrative: a > 50
-      ? `BitMind's deepfake model flagged this image with ${a}% confidence. Synthetic patterns were detected in the visual data.`
-      : `BitMind's deepfake model found no significant synthetic patterns, scoring this image ${h}% likely human.`
+      ? `BitMind flagged this image as AI-generated with ${a}% confidence. Patterns in the visual data match known synthetic image signatures.`
+      : `BitMind found no significant signs of AI generation. The image scored ${h}% likely human-created.`
   });
 }
 
