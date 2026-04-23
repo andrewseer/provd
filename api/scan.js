@@ -92,7 +92,7 @@ ${text}`
       // prediction: true means AI generated
       const isAI = bitmindData?.prediction === true;
       const confidence = bitmindData?.confidence ?? 0.5;
-      const aiProbability = isAI ? confidence : (1 - confidence);
+      const aiProbability = isAI ? confidence : confidence;
 
       results.image = {
         humanScore: Math.round((1 - aiProbability) * 100),
