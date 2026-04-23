@@ -119,21 +119,20 @@ ${text}`
       return res.status(200).json(results.text);
     }
 
-    if (results.image) {
-      const h = results.image.humanScore;
-      const a = results.image.aiProbability;
-      return res.status(200).json({
-        humanScore: h,
-        signals: [
-          { name: 'deepfake probability', value: a, flagged: a > 50 },
-          { name: 'image authenticity', value: h, flagged: h < 50 }
-        ],
-        tags: a > 50 ? ['ai generated', 'deepfake detected'] : ['likely authentic', 'no deepfake'],
-        narrative: a > 50
-          ? `This image has a ${a}% probability of being AI-generated. BitMind flagged synthetic patterns in the visual data.`
-          : `This image appears authentic. BitMind found no significant synthetic patterns, returning a ${h}% human score.`
-      });
-    }
+  if (results.image) {
+  const h = results.image.humanScore;
+  const a = results.image.aiProbability;
+  return res.status(200).json({
+    humanScore: h,
+    signals: [
+      { name: 'deepfake confidence', value: a, flagged: a > 50 }
+    ],
+    tags: a > 50 ? ['ai generated', 'deepfake detected'] : ['likely authentic', 'no deepfake'],
+    narrative: a > 50
+      ? `BitMind's deepfake model flagged this image with ${a}% confidence. Synthetic patterns were detected in the visual data.`
+      : `BitMind's deepfake model found no significant synthetic patterns, scoring this image ${h}% likely human.`
+  });
+}
 
   } catch (err) {
     console.error('Scan error:', err);
