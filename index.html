@@ -10,36 +10,45 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: #0A0A0F;
-    color: #E8E0D5;
+    background: #000000;
+    color: #FFFFFF;
     font-family: 'DM Sans', sans-serif;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px 20px;
+    padding: 48px 20px;
   }
 
   .logo {
     font-family: 'Bellefair', serif;
-    font-size: 48px;
+    font-size: 52px;
     color: #00E5CC;
-    letter-spacing: 0.05em;
-    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
   }
 
   .tagline {
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: #4A4A6A;
-    letter-spacing: 0.15em;
+    font-size: 10px;
+    color: #555555;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    margin-bottom: 48px;
+    margin-bottom: 52px;
+  }
+
+  .top-line {
+    width: 100%;
+    max-width: 600px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #00E5CC, transparent);
+    margin-bottom: 52px;
+    opacity: 0.4;
   }
 
   .card {
-    background: #0F0F1A;
-    border: 1px solid #1E1E32;
+    background: #0A0A0A;
+    border: 1px solid #222222;
     border-radius: 2px;
     padding: 32px;
     width: 100%;
@@ -50,22 +59,57 @@
   .card-label {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
-    color: #4A4A6A;
-    letter-spacing: 0.15em;
+    color: #555555;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
+
+  .mode-toggle {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 20px;
+    background: #000000;
+    border: 1px solid #222222;
+    border-radius: 2px;
+    padding: 3px;
+  }
+
+  .mode-btn {
+    flex: 1;
+    background: transparent;
+    color: #555555;
+    border: none;
+    border-radius: 1px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: auto;
+    margin: 0;
+  }
+
+  .mode-btn.active {
+    background: #111111;
+    color: #00E5CC;
+    border: 1px solid #00E5CC22;
+  }
+
+  .mode-btn:hover:not(.active) { color: #AAAAAA; }
 
   textarea {
     width: 100%;
-    background: #13131F;
-    border: 1px solid #1A1A2E;
+    background: #050505;
+    border: 1px solid #222222;
     border-radius: 1px;
-    color: #E8E0D5;
+    color: #FFFFFF;
     font-family: 'DM Sans', sans-serif;
     font-size: 14px;
     font-weight: 300;
-    line-height: 1.6;
+    line-height: 1.7;
     padding: 16px;
     resize: vertical;
     min-height: 160px;
@@ -73,24 +117,62 @@
     transition: border-color 0.2s;
   }
 
-  textarea:focus {
-    border-color: #00E5CC40;
+  textarea:focus { border-color: #00E5CC55; }
+  textarea::placeholder { color: #333333; }
+
+  .image-drop {
+    width: 100%;
+    background: #050505;
+    border: 1px dashed #333333;
+    border-radius: 1px;
+    padding: 48px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    display: none;
   }
 
-  textarea::placeholder {
-    color: #2A2A4A;
+  .image-drop.active { display: block; }
+  .image-drop:hover { border-color: #00E5CC55; }
+  .image-drop.has-image { border-style: solid; border-color: #00E5CC33; padding: 16px; }
+
+  .drop-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #777777;
+    letter-spacing: 0.08em;
   }
 
-  button {
+  .drop-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: #444444;
+    letter-spacing: 0.08em;
+    margin-top: 6px;
+  }
+
+  #imagePreview {
+    width: 100%;
+    max-height: 240px;
+    object-fit: contain;
+    border-radius: 1px;
+    display: none;
+  }
+
+  #imagePreview.visible { display: block; }
+
+  input[type="file"] { display: none; }
+
+  button.scan-btn {
     width: 100%;
     background: #00E5CC;
-    color: #0A0A0F;
+    color: #000000;
     border: none;
     border-radius: 1px;
     font-family: 'DM Mono', monospace;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 400;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     padding: 16px;
     cursor: pointer;
@@ -98,12 +180,12 @@
     transition: opacity 0.2s;
   }
 
-  button:hover { opacity: 0.85; }
-  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.scan-btn:hover { opacity: 0.85; }
+  button.scan-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
   .result-card {
-    background: #0F0F1A;
-    border: 1px solid #1E1E32;
+    background: #0A0A0A;
+    border: 1px solid #222222;
     border-radius: 2px;
     padding: 32px;
     width: 100%;
@@ -116,20 +198,18 @@
   .score-row {
     display: flex;
     align-items: center;
-    gap: 24px;
-    margin-bottom: 28px;
+    gap: 28px;
+    margin-bottom: 32px;
   }
 
   .score-circle {
     position: relative;
-    width: 100px;
-    height: 100px;
+    width: 104px;
+    height: 104px;
     flex-shrink: 0;
   }
 
-  .score-circle svg {
-    transform: rotate(-90deg);
-  }
+  .score-circle svg { transform: rotate(-90deg); }
 
   .score-inner {
     position: absolute;
@@ -142,81 +222,96 @@
 
   .score-number {
     font-family: 'Bellefair', serif;
-    font-size: 28px;
+    font-size: 30px;
     line-height: 1;
   }
 
   .score-label {
     font-family: 'DM Mono', monospace;
     font-size: 8px;
-    color: #6B6B8A;
+    color: #555555;
     letter-spacing: 0.1em;
-    margin-top: 2px;
+    margin-top: 3px;
   }
 
-  .verdict {
-    flex: 1;
-  }
+  .verdict { flex: 1; }
 
   .verdict-title {
     font-family: 'DM Sans', sans-serif;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 300;
-    margin-bottom: 8px;
+    color: #FFFFFF;
+    margin-bottom: 10px;
   }
 
-  .verdict-tags {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
+  .verdict-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 
   .tag {
     font-family: 'DM Mono', monospace;
     font-size: 9px;
-    color: #C4A882;
-    border: 1px solid #C4A88240;
+    color: #00E5CC;
+    border: 1px solid #00E5CC33;
     padding: 3px 8px;
     border-radius: 1px;
     letter-spacing: 0.06em;
   }
 
+  .breakdown {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #1A1A1A;
+  }
+
+  .breakdown-item {
+    flex: 1;
+    background: #000000;
+    border: 1px solid #1A1A1A;
+    border-radius: 1px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .breakdown-val {
+    font-family: 'Bellefair', serif;
+    font-size: 24px;
+    color: #00E5CC;
+  }
+
+  .breakdown-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: #555555;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+
   .signals-title {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
-    color: #4A4A6A;
-    letter-spacing: 0.12em;
+    color: #555555;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     margin-bottom: 16px;
-    padding-top: 20px;
-    border-top: 1px solid #1A1A2E;
+    padding-top: 24px;
+    border-top: 1px solid #1A1A1A;
   }
 
-  .signal {
-    margin-bottom: 14px;
-  }
+  .signal { margin-bottom: 16px; }
 
   .signal-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 6px;
+    margin-bottom: 7px;
   }
 
-  .signal-name {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: #6B6B8A;
-  }
-
-  .signal-val {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: #4A4A6A;
-  }
+  .signal-name { font-family: 'DM Mono', monospace; font-size: 11px; color: #888888; }
+  .signal-val { font-family: 'DM Mono', monospace; font-size: 11px; color: #555555; }
 
   .signal-bar-bg {
-    height: 2px;
-    background: #1A1A2E;
+    height: 1px;
+    background: #1A1A1A;
     border-radius: 1px;
     overflow: hidden;
   }
@@ -228,51 +323,40 @@
   }
 
   .narrative {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #1A1A2E;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #1A1A1A;
     font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     font-weight: 300;
-    color: #6B6B8A;
-    line-height: 1.7;
+    color: #AAAAAA;
+    line-height: 1.8;
   }
 
-  .loading {
-    text-align: center;
-    padding: 32px;
-    display: none;
-  }
-
+  .loading { text-align: center; padding: 40px; display: none; }
   .loading.visible { display: block; }
 
   .loading-text {
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: #4A4A6A;
-    letter-spacing: 0.1em;
+    font-size: 10px;
+    color: #555555;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
     animation: pulse 1.5s ease-in-out infinite;
   }
 
   @keyframes pulse {
-    0%, 100% { opacity: 0.4; }
+    0%, 100% { opacity: 0.3; }
     50% { opacity: 1; }
-  }
-
-  .top-line {
-    width: 100%;
-    max-width: 600px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #00E5CC40, #4F46E540, transparent);
-    margin-bottom: 48px;
   }
 
   .footer {
     font-family: 'DM Mono', monospace;
     font-size: 9px;
-    color: #2A2A4A;
-    letter-spacing: 0.1em;
-    margin-top: 48px;
+    color: #333333;
+    letter-spacing: 0.12em;
+    margin-top: 56px;
+    text-transform: uppercase;
   }
 </style>
 </head>
@@ -283,9 +367,27 @@
 <div class="top-line"></div>
 
 <div class="card">
-  <div class="card-label">paste content to verify</div>
+  <div class="card-label">choose what to verify</div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" onclick="setMode('text', this)">text</button>
+    <button class="mode-btn" onclick="setMode('image', this)">image</button>
+    <button class="mode-btn" onclick="setMode('both', this)">text + image</button>
+  </div>
+
   <textarea id="inputText" placeholder="paste a post, caption, article, or any text you want to verify..."></textarea>
-  <button id="scanBtn" onclick="runScan()">scan content</button>
+
+  <div class="image-drop" id="imageDrop" onclick="document.getElementById('fileInput').click()">
+    <img id="imagePreview" alt="preview" />
+    <div id="dropPrompt">
+      <div class="drop-label">click to upload an image</div>
+      <div class="drop-sub">jpg, png, webp — max 10mb</div>
+    </div>
+  </div>
+
+  <input type="file" id="fileInput" accept="image/*" onchange="handleImageUpload(event)" />
+
+  <button class="scan-btn" id="scanBtn" onclick="runScan()">scan content</button>
 </div>
 
 <div class="loading" id="loading">
@@ -295,14 +397,14 @@
 <div class="result-card" id="resultCard">
   <div class="score-row">
     <div class="score-circle">
-      <svg width="100" height="100" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="44" fill="none" stroke="#1A1A2E" stroke-width="3"/>
-        <circle id="scoreArc" cx="50" cy="50" r="44" fill="none" stroke="#00E5CC" stroke-width="3"
-          stroke-dasharray="0 276.46" stroke-linecap="round"/>
+      <svg width="104" height="104" viewBox="0 0 104 104">
+        <circle cx="52" cy="52" r="46" fill="none" stroke="#111111" stroke-width="3"/>
+        <circle id="scoreArc" cx="52" cy="52" r="46" fill="none" stroke="#00E5CC" stroke-width="3"
+          stroke-dasharray="0 289.03" stroke-linecap="round"/>
       </svg>
       <div class="score-inner">
         <span class="score-number" id="scoreNumber">0</span>
-        <span class="score-label" id="scoreLabel">human score</span>
+        <span class="score-label">human score</span>
       </div>
     </div>
     <div class="verdict">
@@ -311,20 +413,63 @@
     </div>
   </div>
 
+  <div class="breakdown" id="breakdown" style="display:none"></div>
+
   <div class="signals-title">signal breakdown</div>
   <div id="signals"></div>
-
   <div class="narrative" id="narrative"></div>
 </div>
 
 <div class="footer">provd · built on reality network</div>
 
 <script>
+let currentMode = 'text';
+let imageBase64 = null;
+
+function setMode(mode, btn) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const textArea = document.getElementById('inputText');
+  const imageDrop = document.getElementById('imageDrop');
+
+  if (mode === 'text') {
+    textArea.style.display = 'block';
+    imageDrop.classList.remove('active');
+  } else if (mode === 'image') {
+    textArea.style.display = 'none';
+    imageDrop.classList.add('active');
+  } else {
+    textArea.style.display = 'block';
+    imageDrop.classList.add('active');
+  }
+}
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    imageBase64 = e.target.result;
+    const preview = document.getElementById('imagePreview');
+    preview.src = imageBase64;
+    preview.classList.add('visible');
+    document.getElementById('dropPrompt').style.display = 'none';
+    document.getElementById('imageDrop').classList.add('has-image');
+  };
+  reader.readAsDataURL(file);
+}
 
 async function runScan() {
   const text = document.getElementById('inputText').value.trim();
-  if (!text || text.length < 20) {
+
+  if (currentMode === 'text' && text.length < 20) {
     alert('please paste at least a sentence or two to analyze');
+    return;
+  }
+  if (currentMode === 'image' && !imageBase64) {
+    alert('please upload an image to analyze');
     return;
   }
 
@@ -333,10 +478,14 @@ async function runScan() {
   document.getElementById('resultCard').classList.remove('visible');
 
   try {
-   const response = await fetch('/api/scan', {
+    const body = {};
+    if (currentMode !== 'image') body.text = text;
+    if (currentMode !== 'text' && imageBase64) body.image = imageBase64;
+
+    const response = await fetch('/api/scan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
+      body: JSON.stringify(body)
     });
 
     const result = await response.json();
@@ -344,7 +493,7 @@ async function runScan() {
     displayResult(result);
 
   } catch (err) {
-    alert('something went wrong — check your API key is correct');
+    alert('something went wrong — check the console for details');
     console.error(err);
   } finally {
     document.getElementById('scanBtn').disabled = false;
@@ -354,9 +503,9 @@ async function runScan() {
 
 function displayResult(result) {
   const score = result.humanScore;
-  const circ = 2 * Math.PI * 44;
+  const circ = 2 * Math.PI * 46;
   const fill = (score / 100) * circ;
-  const color = score >= 70 ? '#00E5CC' : score >= 40 ? '#C4A882' : '#7B5EA7';
+  const color = score >= 70 ? '#00E5CC' : score >= 40 ? '#FFFFFF' : '#666666';
 
   const arc = document.getElementById('scoreArc');
   arc.setAttribute('stroke', color);
@@ -365,17 +514,15 @@ function displayResult(result) {
   }, 100);
 
   let display = 0;
-  const target = score;
   const timer = setInterval(() => {
-    display = Math.min(display + 2, target);
+    display = Math.min(display + 2, score);
     document.getElementById('scoreNumber').textContent = display;
-    if (display >= target) clearInterval(timer);
+    if (display >= score) clearInterval(timer);
   }, 20);
 
   document.getElementById('scoreNumber').style.color = color;
-
-  const verdictText = score >= 70 ? 'likely human written' : score >= 40 ? 'origin unclear' : 'likely AI generated';
-  document.getElementById('verdictTitle').textContent = verdictText;
+  document.getElementById('verdictTitle').textContent =
+    score >= 70 ? 'likely human' : score >= 40 ? 'origin unclear' : 'likely AI generated';
 
   const tagsEl = document.getElementById('verdictTags');
   tagsEl.innerHTML = '';
@@ -386,19 +533,33 @@ function displayResult(result) {
     tagsEl.appendChild(span);
   });
 
+  const breakdownEl = document.getElementById('breakdown');
+  if (result.breakdown) {
+    breakdownEl.style.display = 'flex';
+    breakdownEl.innerHTML = '';
+    Object.entries(result.breakdown).forEach(([key, val]) => {
+      breakdownEl.innerHTML += `
+        <div class="breakdown-item">
+          <div class="breakdown-val">${val}</div>
+          <div class="breakdown-label">${key} score</div>
+        </div>`;
+    });
+  } else {
+    breakdownEl.style.display = 'none';
+  }
+
   const signalsEl = document.getElementById('signals');
   signalsEl.innerHTML = '';
   (result.signals || []).forEach(sig => {
-    const barColor = sig.flagged ? '#C4A882' : '#7B5EA7';
+    const barColor = sig.flagged ? '#FFFFFF' : '#00E5CC';
     signalsEl.innerHTML += `
       <div class="signal">
         <div class="signal-header">
-          <span class="signal-name" style="color:${sig.flagged ? '#C4A882' : '#6B6B8A'}">${sig.name}</span>
+          <span class="signal-name" style="color:${sig.flagged ? '#FFFFFF' : '#888888'}">${sig.name}</span>
           <span class="signal-val">${sig.value}</span>
         </div>
         <div class="signal-bar-bg">
-          <div class="signal-bar-fill" style="width:0%;background:${barColor}" 
-               data-width="${sig.value}%"></div>
+          <div class="signal-bar-fill" style="width:0%;background:${barColor}" data-width="${sig.value}%"></div>
         </div>
       </div>`;
   });
@@ -410,7 +571,6 @@ function displayResult(result) {
   }, 100);
 
   document.getElementById('narrative').textContent = result.narrative;
-
   document.getElementById('resultCard').classList.add('visible');
 }
 </script>
