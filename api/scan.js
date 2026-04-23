@@ -65,9 +65,9 @@ ${text}`
   body: JSON.stringify({ image, rich: true })
 });
 
-      const bitmindData = await bitmindRes.json();
-      // BitMind returns a probability that the image is AI-generated
-      const aiProbability = bitmindData?.prediction ?? 0.5;
+   const bitmindData = await bitmindRes.json();
+console.log('BitMind raw response:', JSON.stringify(bitmindData));
+const aiProbability = bitmindData?.prediction ?? 0.5;
       results.image = {
         humanScore: Math.round((1 - aiProbability) * 100),
         aiProbability: Math.round(aiProbability * 100)
