@@ -54,42 +54,21 @@ ${text}`
       results.text = JSON.parse(clean);
     }
 
-    // Image scoring via BitMind — sent as multipart form data
+    // Image scoring via BitMind
     if (image) {
-      // Strip the base64 header and convert to binary
-      const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
-      const imageBuffer = Buffer.from(base64Data, 'base64');
-
-      // Detect mime type from the data URL header
-      const mimeMatch = image.match(/^data:(image\/\w+);base64,/);
-      const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-      const extension = mimeType.split('/')[1];
-
-      // Build multipart form data
-      const boundary = '----ProvdBoundary' + Date.now();
-      const filename = `image.${extension}`;
-
-      const header = Buffer.from(
-        `--${boundary}\r\nContent-Disposition: form-data; name="image"; filename="${filename}"\r\nContent-Type: ${mimeType}\r\n\r\n`
-      );
-      const footer = Buffer.from(`\r\n--${boundary}--\r\n`);
-      const body = Buffer.concat([header, imageBuffer, footer]);
-
       const bitmindRes = await fetch('https://api.bitmind.ai/oracle/v1/34/detect-image', {
         method: 'POST',
-       headers: {
-  'Authorization': `Bearer ${process.env.BITMIND_KEY}`,
-  'Content-Type': 'application/json',
-  'x-bitmind-application': 'oracle-api'
-},
-   body: JSON.stringify({ image, rich: true })
+        headers: {
+          'Authorization': `Bearer ${process.env.BITMIND_KEY}`,
+          'Content-Type': 'application/json',
+          'x-bitmind-application': 'oracle-api'
+        },
+        body: JSON.stringify({ image, rich: true })
       });
 
       const bitmindData = await bitmindRes.json();
       console.log('BitMind raw response:', JSON.stringify(bitmindData));
 
-      // BitMind returns prediction: true/false and confidence: 0-1
-      // prediction: true means AI generated
       const isAI = bitmindData?.isAI === true;
       const confidence = bitmindData?.confidence ?? 0.5;
       const aiProbability = isAI ? confidence : confidence;
@@ -119,19 +98,20 @@ ${text}`
       return res.status(200).json(results.text);
     }
 
-  if (results.image) {
-  const h = results.image.humanScore;
-  const a = results.image.aiProbability;
-  return res.status(200).json({
-    humanScore: h,
-    signals: [
-      { name: 'AI-generated confidence', value: a, flagged: a > 50 }
-    ],
-    tags: a > 50 ? ['AI-generated', 'manipulation detected'] : ['likely authentic', 'no manipulation'],
-    narrative: a > 50
-? `This image was flagged as AI-generated with ${a}% confidence. Patterns in the visual data match known AI-generated image signatures.`      : `? `No significant signs of AI generation were detected. The image scored ${h}% likely human-created.`
-  });
-}
+    if (results.image) {
+      const h = results.image.humanScore;
+      const a = results.image.aiProbability;
+      return res.status(200).json({
+        humanScore: h,
+        signals: [
+          { name: 'AI-generated confidence', value: a, flagged: a > 50 }
+        ],
+        tags: a > 50 ? ['AI-generated', 'manipulation detected'] : ['likely authentic', 'no manipulation'],
+        narrative: a > 50
+          ? `This image was flagged as AI-generated with ${a}% confidence. Patterns in the visual data match known AI-generated image signatures.`
+          : `No significant signs of AI generation were detected. The image scored ${h}% likely human-created.`
+      });
+    }
 
   } catch (err) {
     console.error('Scan error:', err);
