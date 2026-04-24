@@ -70,10 +70,7 @@ async function checkMentions() {
 
     if (lastMentionId) params.since_id = lastMentionId;
 
-    const mentions = await client.v2.mentionTimeline(
-      process.env.X_BOT_USER_ID,
-      params
-    );
+    const mentions = await client.v2.userMentionTimeline(process.env.X_BOT_USER_ID, params);
 
     if (!mentions.data?.data?.length) {
       console.log('No new mentions.');
@@ -88,20 +85,18 @@ async function checkMentions() {
 
       console.log(`Processing mention ${tweet.id} from ${authorId}`);
 
-      // Check daily limit
       if (hasUsedDailyScan(authorId)) {
-        await client.v2.reply(
-          `You've used your daily Provd scan. Come back tomorrow.\n\nTag @provdit on any post to verify.`,
-          tweet.id
-        );
+        await client.v2.tweet({
+          text: `You've used your daily Provd scan. Come back tomorrow.\n\nTag @provdit on any post to verify.`,
+          reply: { in_reply_to_tweet_id: tweet.id }
+        });
         console.log(`Rate limited user ${authorId}`);
         continue;
       }
 
-      // Get the parent post being referenced
       const ref = tweet.referenced_tweets?.find(r => r.type === 'replied_to');
       if (!ref) {
-        console.log(`No parent post found for ${tweet.id} — skipping`);
+        console.log(`No parent post found for ${tweet.id} -- skipping`);
         continue;
       }
 
@@ -110,21 +105,20 @@ async function checkMentions() {
       );
 
       if (!parentTweet?.text) {
-        console.log(`Could not fetch parent post text — skipping`);
+        console.log(`Could not fetch parent post text -- skipping`);
         continue;
       }
 
       const textToScan = parentTweet.text;
 
       if (textToScan.length < 20) {
-        await client.v2.reply(
-          `That post is too short to scan reliably.\n\nTag @provdit on a longer post to verify.`,
-          tweet.id
-        );
+        await client.v2.tweet({
+          text: `That post is too short to scan reliably.\n\nTag @provdit on a longer post to verify.`,
+          reply: { in_reply_to_tweet_id: tweet.id }
+        });
         continue;
       }
 
-      // Call Provd scan API
       const scanRes = await fetch(SCAN_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -146,9 +140,12 @@ async function checkMentions() {
       markDailyScan(authorId);
 
       const reply = buildReply(result);
-      await client.v2.reply(reply, tweet.id);
+      await client.v2.tweet({
+        text: reply,
+        reply: { in_reply_to_tweet_id: tweet.id }
+      });
 
-      console.log(`Replied to ${tweet.id} — human score: ${result.humanScore} — signal: ${result.botSignal}`);
+      console.log(`Replied to ${tweet.id} -- human score: ${result.humanScore} -- signal: ${result.botSignal}`);
     }
 
   } catch (err) {
