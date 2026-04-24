@@ -84,6 +84,10 @@ async function checkMentions() {
       const authorId = tweet.author_id;
 
       console.log(`Processing mention ${tweet.id} from ${authorId}`);
+      if (authorId === process.env.X_BOT_USER_ID) {
+  console.log(`Skipping own tweet ${tweet.id}`);
+  continue;
+}
 
       if (hasUsedDailyScan(authorId)) {
         await client.v2.tweet({
