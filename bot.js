@@ -58,7 +58,7 @@ Confidence too low to verdict.
 Tag @provdit on any post to verify.`;
 }
 
-let lastMentionId = null;
+let lastMentionId = process.env.LAST_MENTION_ID || null;
 
 async function checkMentions() {
   try {
