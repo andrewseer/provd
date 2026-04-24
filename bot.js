@@ -8,7 +8,6 @@ const client = new TwitterApi({
 });
 
 const SCAN_ENDPOINT = process.env.SCAN_ENDPOINT || 'https://provd-five.vercel.app/api/scan';
-const MAX_DAILY_SCANS_PER_USER = 1;
 const dailyScans = {};
 
 function getTodayKey() {
@@ -25,7 +24,7 @@ function markDailyScan(userId) {
   dailyScans[`${userId}-${today}`] = true;
 }
 
-function buildReply(result, authorHandle) {
+function buildReply(result) {
   const score = result.humanScore;
   const aiScore = 100 - score;
   const isAI = score < 40;
@@ -63,20 +62,31 @@ let lastMentionId = null;
 
 async function checkMentions() {
   try {
-    const params = { expansions: ['referenced_tweets.id', 'author_id'], 'tweet.fields': ['text', 'author_id', 'referenced_tweets'], max_results: 10 };
+    const params = {
+      expansions: ['referenced_tweets.id', 'author_id'],
+      'tweet.fields': ['text', 'author_id', 'referenced_tweets'],
+      max_results: 10
+    };
+
     if (lastMentionId) params.since_id = lastMentionId;
 
-    const mentions = await client.v2.mentionTimeline(process.env.X_BOT_USER_ID, params);
+    const mentions = await client.v2.mentionTimeline(
+      process.env.X_BOT_USER_ID,
+      params
+    );
 
-    if (!mentions.data?.data?.length) return;
+    if (!mentions.data?.data?.length) {
+      console.log('No new mentions.');
+      return;
+    }
 
-    // Process oldest first
     const tweets = [...mentions.data.data].reverse();
 
     for (const tweet of tweets) {
       lastMentionId = tweet.id;
-
       const authorId = tweet.author_id;
+
+      console.log(`Processing mention ${tweet.id} from ${authorId}`);
 
       // Check daily limit
       if (hasUsedDailyScan(authorId)) {
@@ -84,17 +94,28 @@ async function checkMentions() {
           `You've used your daily Provd scan. Come back tomorrow.\n\nTag @provdit on any post to verify.`,
           tweet.id
         );
+        console.log(`Rate limited user ${authorId}`);
         continue;
       }
 
       // Get the parent post being referenced
       const ref = tweet.referenced_tweets?.find(r => r.type === 'replied_to');
-      if (!ref) continue;
+      if (!ref) {
+        console.log(`No parent post found for ${tweet.id} — skipping`);
+        continue;
+      }
 
-      const parentTweet = mentions.data.includes?.tweets?.find(t => t.id === ref.id);
-      if (!parentTweet?.text) continue;
+      const parentTweet = mentions.data.includes?.tweets?.find(
+        t => t.id === ref.id
+      );
+
+      if (!parentTweet?.text) {
+        console.log(`Could not fetch parent post text — skipping`);
+        continue;
+      }
 
       const textToScan = parentTweet.text;
+
       if (textToScan.length < 20) {
         await client.v2.reply(
           `That post is too short to scan reliably.\n\nTag @provdit on a longer post to verify.`,
@@ -103,31 +124,38 @@ async function checkMentions() {
         continue;
       }
 
-      // Call scan API
+      // Call Provd scan API
       const scanRes = await fetch(SCAN_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: textToScan, botMode: true })
       });
 
-      if (!scanRes.ok) continue;
+      if (!scanRes.ok) {
+        console.error(`Scan API error: ${scanRes.status}`);
+        continue;
+      }
 
       const result = await scanRes.json();
-      if (result.error) continue;
+
+      if (result.error) {
+        console.error(`Scan returned error: ${result.error}`);
+        continue;
+      }
 
       markDailyScan(authorId);
 
       const reply = buildReply(result);
       await client.v2.reply(reply, tweet.id);
 
-      console.log(`Replied to ${tweet.id} — human score: ${result.humanScore}`);
+      console.log(`Replied to ${tweet.id} — human score: ${result.humanScore} — signal: ${result.botSignal}`);
     }
+
   } catch (err) {
-    console.error('Bot error:', err);
+    console.error('Bot error:', err.message || err);
   }
 }
 
-// Run every 2 minutes
 console.log('Provd bot starting...');
 checkMentions();
 setInterval(checkMentions, 2 * 60 * 1000);
