@@ -39,8 +39,8 @@ Return ONLY a JSON object with this exact structure, no other text:
     {"name": "semantic coherence", "value": <0-100>, "flagged": <true if suspicious>}
   ],
   "tags": [<2-3 short signal labels>],
-  "narrative": "<2 sentences explaining the verdict in plain English>"
-}
+"narrative": "<2 sentences explaining the verdict in plain English>",
+"botSignal": "<one plain English phrase describing the single most suspicious signal, max 8 words, no jargon>"}
 
 Text to analyze:
 ${text}`
