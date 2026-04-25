@@ -1,7 +1,6 @@
 import { TwitterApi } from 'twitter-api-v2';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 
-// X API client
 const client = new TwitterApi({
   appKey: process.env.X_CONSUMER_KEY,
   appSecret: process.env.X_CONSUMER_SECRET,
@@ -9,14 +8,13 @@ const client = new TwitterApi({
   accessSecret: process.env.X_ACCESS_SECRET,
 });
 
-// Config
 const SCAN_ENDPOINT = process.env.SCAN_ENDPOINT || 'https://provd-five.vercel.app/api/scan';
-const MENTION_ID_FILE = '/app/last_mention_id.txt';
+const DATA_DIR = '/app/data';
+const MENTION_ID_FILE = `${DATA_DIR}/last_mention_id.txt`;
 
-// @andrewseer gets unlimited scans for testing
-const UNLIMITED_USERS = ['719210624'];
+// Make sure data directory exists
+try { mkdirSync(DATA_DIR, { recursive: true }); } catch (e) {}
 
-// Daily scan tracking (in-memory, resets on container restart)
 const dailyScans = {};
 
 function getTodayKey() {
@@ -31,7 +29,6 @@ function markDailyScan(userId) {
   dailyScans[`${userId}-${getTodayKey()}`] = true;
 }
 
-// Build the reply tweet based on score
 function buildReply(result) {
   const score = result.humanScore;
   const aiScore = 100 - score;
@@ -66,18 +63,19 @@ Confidence too low to verdict.
 1 free scan per account daily. Tag @provdit on any post.`;
 }
 
-// Load last processed mention ID from disk (survives restarts)
 let lastMentionId = null;
+let bootstrapped = false;
+
 try {
   if (existsSync(MENTION_ID_FILE)) {
     lastMentionId = readFileSync(MENTION_ID_FILE, 'utf8').trim();
+    bootstrapped = true;
     console.log(`Resuming from saved mention ID: ${lastMentionId}`);
-  } else if (process.env.LAST_MENTION_ID) {
-    lastMentionId = process.env.LAST_MENTION_ID;
-    console.log(`Bootstrapping from env mention ID: ${lastMentionId}`);
+  } else {
+    console.log('No saved mention ID. Will bootstrap on first run.');
   }
 } catch (e) {
-  console.log('No saved mention ID, starting fresh');
+  console.error('Error reading mention ID file:', e.message);
 }
 
 function saveMentionId(id) {
@@ -88,7 +86,41 @@ function saveMentionId(id) {
   }
 }
 
+async function bootstrapMentionId() {
+  try {
+    console.log('Bootstrapping: fetching most recent mention to mark starting point...');
+    const mentions = await client.v2.userMentionTimeline(process.env.X_BOT_USER_ID, { max_results: 5 });
+
+    if (mentions.data?.data?.length) {
+      const newest = mentions.data.data[0];
+      lastMentionId = newest.id;
+      saveMentionId(newest.id);
+      console.log(`Bootstrapped lastMentionId to ${newest.id}. Bot will only respond to mentions newer than this.`);
+    } else {
+      console.log('No mentions found. Will start fresh from next mention.');
+    }
+
+    bootstrapped = true;
+  } catch (err) {
+    console.error('Bootstrap failed:', err.message);
+  }
+}
+
 async function checkMentions() {
+  // SAFETY: never run without persistent storage available
+  try {
+    const testFile = `${DATA_DIR}/.write_test`;
+    writeFileSync(testFile, 'ok');
+  } catch (e) {
+    console.error('CRITICAL: cannot write to data volume. Refusing to run to prevent spam.');
+    return;
+  }
+
+  if (!bootstrapped) {
+    await bootstrapMentionId();
+    if (!bootstrapped) return;
+  }
+
   try {
     const params = {
       expansions: ['referenced_tweets.id', 'author_id'],
@@ -108,17 +140,16 @@ async function checkMentions() {
       return;
     }
 
-    // Process oldest first so lastMentionId advances correctly
     const tweets = [...mentions.data.data].reverse();
 
     for (const tweet of tweets) {
       const authorId = tweet.author_id;
 
-      // Always advance the marker so we never reprocess this tweet
+      // Always advance the marker first
       lastMentionId = tweet.id;
       saveMentionId(tweet.id);
 
-      // Skip our own tweets (the bot mentions itself in replies)
+      // Skip own tweets
       if (authorId === process.env.X_BOT_USER_ID) {
         console.log(`Skipping own tweet ${tweet.id}`);
         continue;
@@ -126,22 +157,19 @@ async function checkMentions() {
 
       console.log(`Processing mention ${tweet.id} from ${authorId}`);
 
-      // Daily rate limit, with bypass for unlimited users
-      if (hasUsedDailyScan(authorId) && !UNLIMITED_USERS.includes(authorId)) {
+      // Daily rate limit (no bypass -- everyone is rate limited equally)
+      if (hasUsedDailyScan(authorId)) {
         console.log(`Rate limited user ${authorId} -- skipping silently`);
         continue;
       }
 
-      // Find the parent post being referenced
       const ref = tweet.referenced_tweets?.find(r => r.type === 'replied_to');
       if (!ref) {
         console.log(`No parent post found for ${tweet.id} -- skipping`);
         continue;
       }
 
-      const parentTweet = mentions.data.includes?.tweets?.find(
-        t => t.id === ref.id
-      );
+      const parentTweet = mentions.data.includes?.tweets?.find(t => t.id === ref.id);
 
       if (!parentTweet?.text) {
         console.log(`Could not fetch parent post text -- skipping`);
@@ -155,7 +183,6 @@ async function checkMentions() {
         continue;
       }
 
-      // Call Provd scan API
       const scanRes = await fetch(SCAN_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -174,7 +201,6 @@ async function checkMentions() {
         continue;
       }
 
-      // Mark scan as used, then post reply
       markDailyScan(authorId);
 
       const reply = buildReply(result);
@@ -191,7 +217,6 @@ async function checkMentions() {
   }
 }
 
-// Boot and poll every 2 minutes
 console.log('Provd bot starting...');
 checkMentions();
 setInterval(checkMentions, 2 * 60 * 1000);
