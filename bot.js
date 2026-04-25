@@ -1,4 +1,5 @@
 import { TwitterApi } from 'twitter-api-v2';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 
 const client = new TwitterApi({
   appKey: process.env.X_CONSUMER_KEY,
@@ -58,7 +59,18 @@ Confidence too low to verdict.
 Tag @provdit on any post to verify.`;
 }
 
-let lastMentionId = process.env.LAST_MENTION_ID || null;
+let lastMentionId = null;
+try {
+  if (existsSync('/app/last_mention_id.txt')) {
+    lastMentionId = readFileSync('/app/last_mention_id.txt', 'utf8').trim();
+    console.log(`Resuming from mention ID: ${lastMentionId}`);
+  } else if (process.env.LAST_MENTION_ID) {
+    lastMentionId = process.env.LAST_MENTION_ID;
+    console.log(`Starting from env mention ID: ${lastMentionId}`);
+  }
+} catch (e) {
+  console.log('No saved mention ID found, starting fresh');
+}
 
 async function checkMentions() {
   try {
@@ -80,7 +92,8 @@ async function checkMentions() {
     const tweets = [...mentions.data.data].reverse();
 
     for (const tweet of tweets) {
-      lastMentionId = tweet.id;
+lastMentionId = tweet.id;
+try { writeFileSync('/app/last_mention_id.txt', tweet.id); } catch (e) {}
       const authorId = tweet.author_id;
 
       console.log(`Processing mention ${tweet.id} from ${authorId}`);
