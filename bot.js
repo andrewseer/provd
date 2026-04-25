@@ -30,12 +30,10 @@ function markDailyScan(userId) {
   dailyScans[`${userId}-${getTodayKey()}`] = true;
 }
 
-// Track which parent tweet IDs have already been scanned
 let scannedParents = {};
 try {
   if (existsSync(SCANNED_PARENTS_FILE)) {
     scannedParents = JSON.parse(readFileSync(SCANNED_PARENTS_FILE, 'utf8'));
-    // Clean up old entries (older than SCAN_CACHE_DAYS)
     const cutoff = Date.now() - SCAN_CACHE_DAYS * 24 * 60 * 60 * 1000;
     for (const id of Object.keys(scannedParents)) {
       if (scannedParents[id] < cutoff) delete scannedParents[id];
@@ -137,7 +135,6 @@ async function bootstrapMentionId() {
 }
 
 async function checkMentions() {
-  // Safety: never run without persistent storage
   try {
     writeFileSync(`${DATA_DIR}/.write_test`, 'ok');
   } catch (e) {
@@ -184,6 +181,13 @@ async function checkMentions() {
 
       console.log(`Processing mention ${tweet.id} from ${authorId}`);
 
+      // Only respond if @provdit was explicitly tagged in THIS tweet's text
+      const tweetText = tweet.text || '';
+      if (!tweetText.toLowerCase().includes('@provdit')) {
+        console.log(`No explicit @provdit tag in tweet text -- skipping`);
+        continue;
+      }
+
       if (hasUsedDailyScan(authorId)) {
         console.log(`Rate limited user ${authorId} -- skipping silently`);
         continue;
@@ -195,7 +199,6 @@ async function checkMentions() {
         continue;
       }
 
-      // Skip if this parent has already been scanned recently
       if (hasScannedParent(ref.id)) {
         console.log(`Parent ${ref.id} already scanned -- skipping silently`);
         continue;
