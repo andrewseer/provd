@@ -89,14 +89,10 @@ async function checkMentions() {
   continue;
 }
 
-      if (hasUsedDailyScan(authorId)) {
-        await client.v2.tweet({
-          text: `You've used your daily Provd scan. Come back tomorrow.\n\nTag @provdit on any post to verify.`,
-          reply: { in_reply_to_tweet_id: tweet.id }
-        });
-        console.log(`Rate limited user ${authorId}`);
-        continue;
-      }
+    if (hasUsedDailyScan(authorId)) {
+  console.log(`Rate limited user ${authorId} -- skipping silently`);
+  continue;
+}
 
       const ref = tweet.referenced_tweets?.find(r => r.type === 'replied_to');
       if (!ref) {
