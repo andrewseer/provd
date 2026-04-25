@@ -40,8 +40,7 @@ Return ONLY a JSON object with this exact structure, no other text:
   ],
   "tags": [<2-3 short signal labels>],
 "narrative": "<2 sentences explaining the verdict in plain English>",
-"botSignal": "<one plain English phrase describing the single most suspicious signal, max 8 words, no jargon>"}
-
+"botSignal": "<one plain English phrase about the writing itself, max 8 words, no jargon. Ignore truncation, ellipses, URLs, or formatting artifacts -- focus only on word choice, sentence rhythm, and voice.>"
 Text to analyze:
 ${text}`
           }]
