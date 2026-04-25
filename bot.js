@@ -11,8 +11,9 @@ const client = new TwitterApi({
 const SCAN_ENDPOINT = process.env.SCAN_ENDPOINT || 'https://provd-five.vercel.app/api/scan';
 const DATA_DIR = '/app/data';
 const MENTION_ID_FILE = `${DATA_DIR}/last_mention_id.txt`;
+const SCANNED_PARENTS_FILE = `${DATA_DIR}/scanned_parents.json`;
+const SCAN_CACHE_DAYS = 7;
 
-// Make sure data directory exists
 try { mkdirSync(DATA_DIR, { recursive: true }); } catch (e) {}
 
 const dailyScans = {};
@@ -27,6 +28,35 @@ function hasUsedDailyScan(userId) {
 
 function markDailyScan(userId) {
   dailyScans[`${userId}-${getTodayKey()}`] = true;
+}
+
+// Track which parent tweet IDs have already been scanned
+let scannedParents = {};
+try {
+  if (existsSync(SCANNED_PARENTS_FILE)) {
+    scannedParents = JSON.parse(readFileSync(SCANNED_PARENTS_FILE, 'utf8'));
+    // Clean up old entries (older than SCAN_CACHE_DAYS)
+    const cutoff = Date.now() - SCAN_CACHE_DAYS * 24 * 60 * 60 * 1000;
+    for (const id of Object.keys(scannedParents)) {
+      if (scannedParents[id] < cutoff) delete scannedParents[id];
+    }
+  }
+} catch (e) {
+  console.error('Could not load scanned parents:', e.message);
+  scannedParents = {};
+}
+
+function hasScannedParent(parentId) {
+  return scannedParents[parentId] !== undefined;
+}
+
+function markParentScanned(parentId) {
+  scannedParents[parentId] = Date.now();
+  try {
+    writeFileSync(SCANNED_PARENTS_FILE, JSON.stringify(scannedParents));
+  } catch (e) {
+    console.error('Failed to save scanned parents:', e.message);
+  }
 }
 
 function buildReply(result) {
@@ -107,12 +137,11 @@ async function bootstrapMentionId() {
 }
 
 async function checkMentions() {
-  // SAFETY: never run without persistent storage available
+  // Safety: never run without persistent storage
   try {
-    const testFile = `${DATA_DIR}/.write_test`;
-    writeFileSync(testFile, 'ok');
+    writeFileSync(`${DATA_DIR}/.write_test`, 'ok');
   } catch (e) {
-    console.error('CRITICAL: cannot write to data volume. Refusing to run to prevent spam.');
+    console.error('CRITICAL: cannot write to data volume. Refusing to run.');
     return;
   }
 
@@ -145,11 +174,9 @@ async function checkMentions() {
     for (const tweet of tweets) {
       const authorId = tweet.author_id;
 
-      // Always advance the marker first
       lastMentionId = tweet.id;
       saveMentionId(tweet.id);
 
-      // Skip own tweets
       if (authorId === process.env.X_BOT_USER_ID) {
         console.log(`Skipping own tweet ${tweet.id}`);
         continue;
@@ -157,7 +184,6 @@ async function checkMentions() {
 
       console.log(`Processing mention ${tweet.id} from ${authorId}`);
 
-      // Daily rate limit (no bypass -- everyone is rate limited equally)
       if (hasUsedDailyScan(authorId)) {
         console.log(`Rate limited user ${authorId} -- skipping silently`);
         continue;
@@ -166,6 +192,12 @@ async function checkMentions() {
       const ref = tweet.referenced_tweets?.find(r => r.type === 'replied_to');
       if (!ref) {
         console.log(`No parent post found for ${tweet.id} -- skipping`);
+        continue;
+      }
+
+      // Skip if this parent has already been scanned recently
+      if (hasScannedParent(ref.id)) {
+        console.log(`Parent ${ref.id} already scanned -- skipping silently`);
         continue;
       }
 
@@ -202,6 +234,7 @@ async function checkMentions() {
       }
 
       markDailyScan(authorId);
+      markParentScanned(ref.id);
 
       const reply = buildReply(result);
       await client.v2.tweet({
